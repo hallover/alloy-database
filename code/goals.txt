@@ -1,1 +1,4 @@
 look for irreducible kpoints in the IBZKPT file
+create graphs that model each of the different outputs in the OUTCAR file
+streamline the resource requests for MaryLou
+
