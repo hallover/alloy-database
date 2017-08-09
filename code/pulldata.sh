@@ -11,3 +11,5 @@ find . -name OUTCAR -exec awk '/free energy/ {energy = $5}; END {print FILENAME 
 
 #for directory in ls -d /fslhome/holiver2/work/vasp/alloydatabase/finished/0-CdCoN/
 #do
+
+find . -name OUTCAR -exec awk '/free energy/ {energy = $5}; END {print FILENAME " " energy}' {} \; >> fenergy.txt

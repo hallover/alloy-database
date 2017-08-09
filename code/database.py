@@ -51,6 +51,9 @@ ptcrSpecList = []
 name = []
 pscrList = []
 
+inputzips = []
+
+
 def buildDIRS():
     """Once we have the zip files all in the /alloyzips folder, 
     we are going to run this function. It builds the directory tree and
@@ -67,9 +70,14 @@ def buildDIRS():
     """Set up directory loop"""
     dirs = [d for d in os.listdir(newpath) if os.path.isdir(os.path.join(newpath, d))]
     index = 0
+
+
+    print(inputzips)
+    #print(len(pscrList))
     for metal in sorted(dirs):
         path = newpath + metal
         print(path)
+#        print(pscrList[index])
         for n in range(4,45,3):
             lvl2path = path + "/" + str(n).zfill(2) + "frzkpts"
             if not os.path.exists(lvl2path):
@@ -84,19 +92,25 @@ def buildDIRS():
 
                 """Here we're going to make each of the input files by calling 
                 the functions declared later in this package"""
-                getPOTCAR(lvl3path, index)
-                with open(lvl3path + "/POSCAR" , "w") as f:
-                    f.write(pscrList[index])
 
+                getPOTCAR(lvl3path, index)
+
+                with open(lvl3path + "/POSCAR" , "w") as f:
+                    f.write(inputzips[index][1])
+
+                #with open(lvl3path + "/preINCAR", "w") as f:
+                 #   f.write(incrList[index])
+                
                 if k == n:
                     first = True
                 else:
                     first = False
 
-                makeINCAR(lvl3path, first)
+                makeINCAR(lvl3path, first, index)
                 makeKPOINTS(lvl3path, k)
                 makeSlurm(lvl3path, n, k, metal)
-                
+     #   print(index)
+        #print(incrList[index])
         index += 1
     return
 
@@ -107,54 +121,40 @@ def getFILES():
     zipnames = [f for f in os.listdir(zippath) if isfile(join(zippath,f))]
     
     global ptcrSpecList
-
-
-    zipnames = sorted(zipnames)
-#    print(zipnames)
+    global inputzips
+    name = []
+    
     for nfile in range(0,len(zipnames)):
         zipfiles.append(Z.ZipFile(zippath + zipnames[nfile]))
         inside = Z.ZipFile.namelist(zipfiles[nfile])
         
-        #print(inside)
-
         pscrList.append(Z.ZipFile.read(zipfiles[nfile],inside[0]))
         kptList.append(inside[1])
-        incrList.append(inside[2])
-
+        incrList.append(Z.ZipFile.read(zipfiles[nfile],inside[2]))
+#        print(incrList[nfile])
 
         spec = Z.ZipFile.read(zipfiles[nfile],inside[3])
-        ptcrSpecList.append(sorted(spec.split()))
-        name.append("".join(sorted(ptcrSpecList[nfile])))
-    print(pscrList)
+        ptcrSpecList.append(spec.split()) # removed sorted()
+        name.append("".join(ptcrSpecList[nfile]))
 
-#        if not os.path.exists(newpath + name[nfile]):
-#            os.makedirs(newpath + str(nfile) + "-" + name[nfile])
 
-    for nfile in range(0,len(name)):
-        print(ptcrSpecList[nfile])
+    inputzips = sorted(zip(name,pscrList,kptList,incrList,ptcrSpecList))
+#    print(inputzips)
 
-        dirpath = newpath + str(nfile).zfill(2) + "-" + name[nfile]
+    for i in inputzips:
+        #print(i)
+        print("\n")
+        
+    for nfile in range(0,len(inputzips)):
+        #print(ptcrSpecList[nfile])
+        #print(incrList[nfile])
+        #dirpath = newpath + str(nfile).zfill(2) + "-" + name[nfile]
+
+        #print(inputzips[nfile][0])
+        dirpath = newpath + name[nfile]
         if not os.path.exists(dirpath):
             os.makedirs(dirpath)
-        with open(dirpath + "/POSCAR", "w") as f:
-            f.write(pscrList[nfile])
-        
-        # ptcrSpecList = sorted(ptcrSpecList)
 
-
-
-
-
-   # print(ptcrSpecList.sort())
-        #    for i in range(0, len(ptcrSpecList)):
- #       ptcrSpecList[i] = sorted(ptcrSpecList[i])
-
-    #getPOTCAR()
-    return
-    
-def getPOSCAR(pscrList):
-    
-    
     return
 
 def getPOTCAR(path, index):
@@ -162,8 +162,9 @@ def getPOTCAR(path, index):
     #print(ptcrSpecList)
     from element import Element
     potpath = path + "/POTCAR"
-    
-    formula = ptcrSpecList[index]
+#    print(index)
+ #   print(inputzips[index][4])
+    formula = inputzips[index][4] #chooses the potcarspec list from the sorted directory 'inputzips'
     
     
     elements = []
@@ -192,9 +193,30 @@ def makeKPOINTS(path, kpts):
     return
 
 
-def makeINCAR(path, first):
+def makeINCAR(path, first, index):
     incarpath = path + "/INCAR"
+
     with open(incarpath, "w") as f:
+        incarstr = inputzips[index][3]
+        
+        incarstr = incarstr.replace("NELM = 100","NELM = 50")
+        incarstr = incarstr.replace("NSW = 99", "NSW = 1")
+        incarstr = incarstr.replace("ISIF = 3", "ISIF = 0")
+        
+
+
+
+        if first == True:
+            f.write(incarstr.replace("ICHARG = 1","ICHARG = 0"))
+            
+            
+        else:
+            f.write(incarstr.replace("ICHARG = 1", "ICHARG = 11"))
+
+        
+            
+        """
+    This is the custom INCAR I made. It doesn't work very well.
         f.write("ISTART = 0 \n")
         f.write("ISMEAR = -1\n")
         f.write("SIGMA = .2\n")
@@ -212,11 +234,23 @@ def makeINCAR(path, first):
         f.write("NELMIN = 4\n")
 
 
-        f.write("NSW = 200\n")
-        f.write("EDIFFG = -0.01\n")
+        f.write("NSW = 1\n")
+        #f.write("EDIFF = .0001\n")
+        #f.write("EDIFFG = 0.001\n")
         f.write("POTIM = 1.0\n")
         f.write("ISIF = 4\n")
-        
+    """
+    """        f.write("ALGO = Fast\n")
+        f.write("EDIFF = 0.00025\n")
+        f.write("ENCUT = 520\n")
+        f.write("IBRION = 2\n")
+        if first == True:
+            f.write("ICHARG = 1\n")
+        else:
+            f.write("ICHARG = 11\n")
+        f.write("ISIF = 3")"""
+
+
     return
 
 
@@ -234,29 +268,29 @@ def makeSlurm(path, frz, kpts, name):
         NKDIM*NBANDS*NRPLWV*16
         """
         if kpts == 4:
-            f.write("#SBATCH --time=00:20:00   # walltime\n")
-            f.write("#SBATCH --mem-per-cpu=500M   # memory per CPU core\n")
+            f.write("#SBATCH --time=00:10:00   # walltime\n")
+            f.write("#SBATCH --mem-per-cpu=250M   # memory per CPU core\n")
         elif kpts == 7:
-            f.write("#SBATCH --time=00:30:00   # walltime\n")
-            f.write("#SBATCH --mem-per-cpu=1000M   # memory per CPU core\n")       
+            f.write("#SBATCH --time=00:20:00   # walltime\n")
+            f.write("#SBATCH --mem-per-cpu=500M   # memory per CPU core\n")       
         elif kpts == 10 or kpts == 13:
-            f.write("#SBATCH --time=1:00:00   # walltime\n")
+            f.write("#SBATCH --time=00:30:00   # walltime\n")
             f.write("#SBATCH --mem-per-cpu=1000M   # memory per CPU core\n") 
         elif kpts == 16 or kpts == 19:
-            f.write("#SBATCH --time=1:20:00   # walltime\n")
-            f.write("#SBATCH --mem-per-cpu=3048M   # memory per CPU core\n")    
+            f.write("#SBATCH --time=00:45:00   # walltime\n")
+            f.write("#SBATCH --mem-per-cpu=2500M   # memory per CPU core\n")    
         elif kpts == 22 or kpts == 25:
-            f.write("#SBATCH --time=01:50:00   # walltime\n")
-            f.write("#SBATCH --mem-per-cpu=6000M # memory per CPU core\n")
+            f.write("#SBATCH --time=01:00:00   # walltime\n")
+            f.write("#SBATCH --mem-per-cpu=4000M # memory per CPU core\n")
         elif kpts == 28 or kpts == 31:
-            f.write("#SBATCH --time=03:10:00   # walltime\n")                        
-            f.write("#SBATCH --mem-per-cpu=15000M   # memory per CPU core\n")
+            f.write("#SBATCH --time=01:25:00   # walltime\n")                        
+            f.write("#SBATCH --mem-per-cpu=5000M   # memory per CPU core\n")
         elif kpts == 34 or kpts == 37:
-            f.write("#SBATCH --time=03:35:00   # walltime\n")
-            f.write("#SBATCH --mem-per-cpu=25000M   # memory per CPU core\n") 
+            f.write("#SBATCH --time=01:55:00   # walltime\n")
+            f.write("#SBATCH --mem-per-cpu=10000M   # memory per CPU core\n") 
         elif kpts == 40 or kpts == 43:
-            f.write("#SBATCH --time=4:30:00 # walltime\n")
-            f.write("#SBATCH --mem-per-cpu=60000M # memory per CPU core\n")
+            f.write("#SBATCH --time=2:30:00 # walltime\n")
+            f.write("#SBATCH --mem-per-cpu=30000M # memory per CPU core\n")
 
             
 
@@ -264,7 +298,7 @@ def makeSlurm(path, frz, kpts, name):
         f.write("#SBATCH --ntasks=1   # number of processor cores (i.e. tasks)\n")
         f.write("#SBATCH --nodes=1   # number of nodes\n")
         
-        f.write("#SBATCH -J " + name[0] +"-"+ str(frz).zfill(2) +"-"+ str(kpts).zfill(2) +" #job name\n")
+        f.write("#SBATCH -J " + name[0].zfill(2) +"-"+ str(frz).zfill(2) +"-"+ str(kpts).zfill(2) +" #job name\n")
         f.write("#SBATCH --mail-user=haydenoliver@physics.byu.edu #email\n")
         f.write("#SBATCH --mail-type=FAIL\n")
         #f.write("#SBATCH --gid=glh43physicsnodes\n")
@@ -298,9 +332,9 @@ def runFirstBatch():
         userinput = input("y (1) or n (0): ")
         if userinput == 1:
             for n in range(4,45,3):
-                lvl2path = path + "/" + str(n) + "frzkpts"
+                lvl2path = path + "/" + str(n).zfill(2) + "frzkpts"
                 for k in range(n,44,3):
-                    lvl3path = lvl2path + "/" + str(k) + "kpts"    
+                    lvl3path = lvl2path + "/" + str(k).zfill(2) + "kpts"    
                     if k == n:
                         
                         os.system("cd " + lvl3path + "; sbatch RUN.sh")

@@ -93,36 +93,82 @@ ePSCENC = []
 eSIGMA0 = []
 e_nENTRO = []
 eEBANDS = []
-
+ikpts = []
 
 
 #print(error_alldata)
-
-for i in range(len(error_alldata)):
+for h in range(0,14):
     a = []
     b = []
     c = []
     d = []
     e = []
     f = []
-    
-    for j in range(1,12):
+    irrk = []
+#KPTORDER,CPUTIME,IRRKPTS,TOTEN,TEWEN,PSCENC,SIGMA0,nENTRO,EBANDS
+    for i in range(len(error_alldata)):                                                   
         if error_alldata[i][0][0] == kpts:
-            #print(error_alldata[i])
-            a.append(error_alldata[i][3])
+            a.append(alldata[i][3])
             b.append(error_alldata[i][4])
             c.append(error_alldata[i][5])
             d.append(error_alldata[i][6])
             e_nENTRO.append(error_alldata[i][7])
             f.append(error_alldata[i][8])
-        kpts = 3 * j + 4
+            irrk.append(error_alldata[i][2])
+    kpts = 3 * h + 4
     eTOTEN.append(a)
-        
-print(eTOTEN)
+    eTEWEN.append(b)
+    ePSCENC.append(c)
+    eSIGMA0.append(d)
+    e_nENTRO.append(e)
+    eEBANDS.append(f)
+    ikpts.append(irrk)
+    #print(a)
+    
+#print(eTOTEN)
+del eTOTEN[0]
+del ikpts[0]
+del eSIGMA0[0]
 
+print(ikpts)
     
 """Now we're going to plot the data"""
 base = 92 #line number 93 is the 43x43x43 kpt grid
+
+for i in range(len(ikpts)):
+    plt.plot(ikpts[i],eSIGMA0[i])
+plt.loglog()
+plt.xlabel("Irreducible k-points")
+plt.ylabel("Error")
+plt.title("Energy Sigma -> 0")
+plt.savefig('graph3.pdf')
+
+
+
+for i in range(len(ikpts)):
+#    print(ikpts[i])
+    n = 4 + i * 3
+    plt.plot(ikpts[i],eTOTEN[i], label=str(n) + 'frzkpts')
+plt.loglog()
+plt.legend(loc='best')
+plt.xlabel("Irreducible k-points")
+plt.ylabel("Error")
+plt.title("TOTEN")
+
+plt.savefig('graph4.pdf')
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
