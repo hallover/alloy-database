@@ -45,13 +45,16 @@ VASP - Density Functional Theory package
 
 zipfiles = []
 pscrList = []                                                                                     
-incrList = []
 kptList = []
 ptcrSpecList = []    
 name = []
 pscrList = []
 
 inputzips = []
+
+zippath = "/fslhome/holiver2/work/vasp/alloydatabase/alloyzips/"
+newpath = "/fslhome/holiver2/work/vasp/alloydatabase/metalsdir/"
+finishedpath = "/fslhome/holiver2/work/vasp/alloydatabase/finished/"
 
 
 def buildDIRS():
@@ -63,8 +66,8 @@ def buildDIRS():
     """
 
 
-    zippath = "/fslhome/holiver2/work/vasp/alloydatabase/alloyzips/"
-    newpath = "/fslhome/holiver2/work/vasp/alloydatabase/metalsdir/"
+#    zippath = "/fslhome/holiver2/work/vasp/alloydatabase/alloyzips/"
+#    newpath = "/fslhome/holiver2/work/vasp/alloydatabase/metalsdir/"
 
     
     """Set up directory loop"""
@@ -72,7 +75,7 @@ def buildDIRS():
     index = 0
 
 
-    print(inputzips)
+#    print(inputzips)
     #print(len(pscrList))
     for metal in sorted(dirs):
         path = newpath + metal
@@ -116,8 +119,8 @@ def buildDIRS():
 
 
 def getFILES():
-    zippath = "/fslhome/holiver2/work/vasp/alloydatabase/alloyzips/"
-    newpath = "/fslhome/holiver2/work/vasp/alloydatabase/metalsdir/"
+#    zippath = "/fslhome/holiver2/work/vasp/alloydatabase/alloyzips/"
+#    newpath = "/fslhome/holiver2/work/vasp/alloydatabase/metalsdir/"
     zipnames = [f for f in os.listdir(zippath) if isfile(join(zippath,f))]
     
     global ptcrSpecList
@@ -141,9 +144,9 @@ def getFILES():
     inputzips = sorted(zip(name,pscrList,kptList,incrList,ptcrSpecList))
 #    print(inputzips)
 
-    for i in inputzips:
+#    for i in inputzips:
         #print(i)
-        print("\n")
+#        print("\n")
         
     for nfile in range(0,len(inputzips)):
         #print(ptcrSpecList[nfile])
@@ -268,29 +271,29 @@ def makeSlurm(path, frz, kpts, name):
         NKDIM*NBANDS*NRPLWV*16
         """
         if kpts == 4:
-            f.write("#SBATCH --time=00:10:00   # walltime\n")
-            f.write("#SBATCH --mem-per-cpu=250M   # memory per CPU core\n")
-        elif kpts == 7:
-            f.write("#SBATCH --time=00:20:00   # walltime\n")
-            f.write("#SBATCH --mem-per-cpu=500M   # memory per CPU core\n")       
-        elif kpts == 10 or kpts == 13:
             f.write("#SBATCH --time=00:30:00   # walltime\n")
-            f.write("#SBATCH --mem-per-cpu=1000M   # memory per CPU core\n") 
-        elif kpts == 16 or kpts == 19:
-            f.write("#SBATCH --time=00:45:00   # walltime\n")
-            f.write("#SBATCH --mem-per-cpu=2500M   # memory per CPU core\n")    
-        elif kpts == 22 or kpts == 25:
+            f.write("#SBATCH --mem-per-cpu=1000M   # memory per CPU core\n")
+        elif kpts == 7:
             f.write("#SBATCH --time=01:00:00   # walltime\n")
-            f.write("#SBATCH --mem-per-cpu=4000M # memory per CPU core\n")
+            f.write("#SBATCH --mem-per-cpu=2000M   # memory per CPU core\n")       
+        elif kpts == 10 or kpts == 13:
+            f.write("#SBATCH --time=02:00:00   # walltime\n")
+            f.write("#SBATCH --mem-per-cpu=4000M   # memory per CPU core\n") 
+        elif kpts == 16 or kpts == 19:
+            f.write("#SBATCH --time=03:00:00   # walltime\n")
+            f.write("#SBATCH --mem-per-cpu=8000M   # memory per CPU core\n")    
+        elif kpts == 22 or kpts == 25:
+            f.write("#SBATCH --time=04:00:00   # walltime\n")
+            f.write("#SBATCH --mem-per-cpu=8000M # memory per CPU core\n")
         elif kpts == 28 or kpts == 31:
-            f.write("#SBATCH --time=01:25:00   # walltime\n")                        
-            f.write("#SBATCH --mem-per-cpu=5000M   # memory per CPU core\n")
+            f.write("#SBATCH --time=06:00:00   # walltime\n")                        
+            f.write("#SBATCH --mem-per-cpu=15000M   # memory per CPU core\n")
         elif kpts == 34 or kpts == 37:
-            f.write("#SBATCH --time=01:55:00   # walltime\n")
-            f.write("#SBATCH --mem-per-cpu=10000M   # memory per CPU core\n") 
+            f.write("#SBATCH --time=08:00:00   # walltime\n")
+            f.write("#SBATCH --mem-per-cpu=30000M   # memory per CPU core\n") 
         elif kpts == 40 or kpts == 43:
-            f.write("#SBATCH --time=2:30:00 # walltime\n")
-            f.write("#SBATCH --mem-per-cpu=30000M # memory per CPU core\n")
+            f.write("#SBATCH --time=12:00:00 # walltime\n")
+            f.write("#SBATCH --mem-per-cpu=60000M # memory per CPU core\n")
 
             
 
@@ -298,7 +301,7 @@ def makeSlurm(path, frz, kpts, name):
         f.write("#SBATCH --ntasks=1   # number of processor cores (i.e. tasks)\n")
         f.write("#SBATCH --nodes=1   # number of nodes\n")
         
-        f.write("#SBATCH -J " + name[0].zfill(2) +"-"+ str(frz).zfill(2) +"-"+ str(kpts).zfill(2) +" #job name\n")
+        f.write("#SBATCH -J " + name[0] +"-"+ str(frz).zfill(2) +"-"+ str(kpts).zfill(2) +" #job name\n")
         f.write("#SBATCH --mail-user=haydenoliver@physics.byu.edu #email\n")
         f.write("#SBATCH --mail-type=FAIL\n")
         #f.write("#SBATCH --gid=glh43physicsnodes\n")
@@ -320,8 +323,8 @@ def makeSlurm(path, frz, kpts, name):
 
 
 def runFirstBatch():
-    zippath = "/fslhome/holiver2/work/vasp/alloydatabase/alloyzips/"
-    newpath = "/fslhome/holiver2/work/vasp/alloydatabase/metalsdir/"
+#    zippath = "/fslhome/holiver2/work/vasp/alloydatabase/alloyzips/"
+#    newpath = "/fslhome/holiver2/work/vasp/alloydatabase/metalsdir/"
     dirs = sorted([d for d in os.listdir(newpath) if os.path.isdir(os.path.join(newpath,d))])
     index = 0
     for metal in range(len(dirs)):   
@@ -345,27 +348,32 @@ def runFirstBatch():
 
 
 def cpCHGCAR():
-    newpath= "/fslhome/holiver2/work/vasp/alloydatabase/metalsdir/"
+#    newpath= "/fslhome/holiver2/work/vasp/alloydatabase/metalsdir/"
 
-    dirs = [d for d in os.listdir(newpath) if os.path.isdir(os.path.join(newpath,d))]
+    dirs = sorted([d for d in os.listdir(newpath) if os.path.isdir(os.path.join(newpath,d))])
 
-    for metal in sorted(dirs):
-        path = newpath + metal
+    for metal in range(len(dirs)):
+        path = newpath + dirs[metal]
         print(path)
 
-        for n in range(4,45,3):
-            lvl2path = path + "/" + str(n).zfill(2) + "frzkpts"
+        userinput = input("y (1) or n (0): ")
+        if userinput == 1:
+        
+            for n in range(4,45,3):
+                lvl2path = path + "/" + str(n).zfill(2) + "frzkpts"
+                print(n)
+                os.system("for d in " + lvl2path + "/*/; do cp " +lvl2path + "/" + str(n).zfill(2) + "kpts/CHGCAR \"$d\"; done")
 
-            os.system("for d in " + lvl2path + "/*/; do cp " +lvl2path + "/" + str(n).zfill(2) + "kpts/CHGCAR \"$d\"; done")
-
-            for k in range(n,44,3):
-                lvl3path = lvl2path + "/" + str(k).zfill(2) + "kpts"
+                #for k in range(n,44,3):
+                 #   lvl3path = lvl2path + "/" + str(k).zfill(2) + "kpts"
                 
             
-        break
+        else:
+            zzz = 1
+                
 
 def readOUTCAR():
-    newpath = "/fslhome/holiver2/work/vasp/alloydatabase/metalsdir/"
+#    newpath = "/fslhome/holiver2/work/vasp/alloydatabase/metalsdir/"
     
     for metal in sorted(dirs):
         path = newpath + metal
@@ -375,8 +383,8 @@ def readOUTCAR():
             n = 1
                     
 def editSlurm():
-    zippath = "/fslhome/holiver2/work/vasp/alloydatabase/alloyzips/"
-    newpath = "/fslhome/holiver2/work/vasp/alloydatabase/metalsdir/"
+#    zippath = "/fslhome/holiver2/work/vasp/alloydatabase/alloyzips/"
+#    newpath = "/fslhome/holiver2/work/vasp/alloydatabase/metalsdir/"
 
 
     dirs = sorted([d for d in os.listdir(newpath) if os.path.isdir(os.path.join(newpath, d))])
@@ -403,7 +411,11 @@ def editSlurm():
 
 def gatherData():
 
-    newpath = "/fslhome/holiver2/work/vasp/alloydatabase/metalsdir/"
+    """This function is still in development, hence the very specific and non-dynamic instructions.
+Once it is finished, we will have the ability to read the data from all the vasp runs"""
+
+    
+#    newpath = "/fslhome/holiver2/work/vasp/alloydatabase/metalsdir/"
     dirs = sorted([d for d in os.listdir(newpath) if os.path.isdir(os.path.join(newpath, d))])
 
     freeEnergy = []
@@ -469,8 +481,8 @@ def gatherData():
     return
 
 
-def runChgcarSets():
-    newpath = "/fslhome/holiver2/work/vasp/alloydatabase/metalsdir/"
+def runSecondBatch():
+#    newpath = "/fslhome/holiver2/work/vasp/alloydatabase/metalsdir/"
     dirs = sorted([d for d in os.listdir(newpath) if os.path.isdir(os.path.join(newpath, d))])
 
     for metal in range(len(dirs)):
@@ -482,14 +494,48 @@ def runChgcarSets():
         if userinput == 1:
             for n in range(4,45,3):
                 print(str(n) + " frozen kpoints")
-
+                
                 lvl2path = path + "/" + str(n).zfill(2) + "frzkpts"
                 for k in range(n,44,3):
                     
                     lvl3path = lvl2path + "/" + str(k).zfill(2) + "kpts"    
+                    """
+                    outcarpath = lvl3path + "/OUTCAR"
 
+                    if os.path.exists(outcarpath):
+                    
+                        with open(outcarpath, "r") as f:
+                            for line in f:
+                                redo = False
+                                if "General timing and accounting informations" in line:
+                                   # os.system("cd " + lvl3path + "; sbatch RUN.sh")
+                                    redo = False
+                                    break
+                                else:
+                                    redo = True
+
+                                if redo == True:
+                                    os.system("cd " + lvl3path + "; sbatch RUN.sh")
+                    """                                    
                     if n != k:
                         os.system("cd " + lvl3path + "; sbatch RUN.sh")         
         else:
             zzz = 1        
     return
+
+def copyData():
+    dirs = sorted([d for d in os.listdir(newpath) if os.path.isdir(os.path.join(newpath,d))])
+
+    for metal in range(len(dirs)):
+        
+
+        path = newpath + dirs[metal] + "/"
+
+        print(dirs[metal])
+        userinput = input("yes - 1: no - 0")
+    
+        if userinput == 1:
+            os.system("rsync -r " + path + " " + finishedpath + dirs[metal])
+
+        else:
+            zzz = 1
