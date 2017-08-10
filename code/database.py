@@ -2,6 +2,10 @@ import os
 from os.path import isfile, join
 import zipfile as Z
 
+from getpass import getuser
+
+
+
 """We're going to use this script a lot. What I've been doing for 
 developmental purposes is running python from the terminal, 
 importing this module, and running the functions individually.
@@ -54,10 +58,13 @@ pscrList = []
 inputzips = []
 
 
-zippath = "/fslhome/holiver2/work/vasp/alloydatabase/alloyzips/"
-newpath = "/fslhome/holiver2/work/vasp/alloydatabase/metalsdir/"
-finishedpath = "/fslhome/holiver2/work/vasp/alloydatabase/finished/"
+netID = getuser()
 
+
+zippath = "/fslhome/" + netID + "/work/vasp/alloydatabase/alloyzips/"
+newpath = "/fslhome/" + netID + "/vasp/alloydatabase/metalsdir/"
+finishedpath = "/fslhome/" + netID + "/vasp/alloydatabase/finished/"
+databasepath = "/fslhome/" + netID + "/vasp/database/code/"
 
 def buildDIRS():
     """Once we have the zip files all in the /alloyzips folder, 
@@ -160,7 +167,7 @@ def getFILES():
         if not os.path.exists(dirpath):
             os.makedirs(dirpath)
 
-    with open("/fslhome/holiver2/work/vasp/database/code/namelist.txt", "w") as f:
+    with open(databasepath + "namelist.txt", "w") as f:
         for entry in sorted(name):
             f.write(entry)
             f.write("\n")
