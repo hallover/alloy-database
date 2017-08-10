@@ -14,5 +14,5 @@ All prerequisites are taken care of by the FSL Supercomputer.
 
 
 Contents
-This writes a custom INCAR and KPOINTS file for each metal
-
+This writes a custom INCAR and KPOINTS file for each metal.
+Compiles the POTCAR files from a local source.
