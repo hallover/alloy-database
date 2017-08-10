@@ -12,5 +12,6 @@ All prerequisites are taken care of by the FSL Supercomputer.
 
 Contents
 This writes a custom INCAR and KPOINTS file for each metal
+POTCAR is compiled from local source.
 
 testing gitflow
