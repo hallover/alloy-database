@@ -1,0 +1,13 @@
+CdCoN
+Ga_dCo
+Li_svFe_pvAs
+Li_svNi_pvO
+Mg_pvCo
+Ni_pvBi
+Pm_3Ni_pv
+Ta_pvNi_pvGe_d
+Ti_pvFe_pv
+Ti_pvNi_pv
+Y_svSiNi_pv
+ZnFe_pvC
+ZnFe_pvF

@@ -68,21 +68,14 @@ def buildDIRS():
     """
 
 
-#    zippath = "/fslhome/holiver2/work/vasp/alloydatabase/alloyzips/"
-#    newpath = "/fslhome/holiver2/work/vasp/alloydatabase/metalsdir/"
-
-    
-    """Set up directory loop"""
+    #Set up directory loop
     dirs = [d for d in os.listdir(newpath) if os.path.isdir(os.path.join(newpath, d))]
     index = 0
 
-
-#    print(inputzips)
-    #print(len(pscrList))
     for metal in sorted(dirs):
         path = newpath + metal
         print(path)
-#        print(pscrList[index])
+
         for n in range(4,45,3):
             lvl2path = path + "/" + str(n).zfill(2) + "frzkpts"
             if not os.path.exists(lvl2path):
@@ -95,8 +88,8 @@ def buildDIRS():
                 if not os.path.exists(lvl3path):
                     os.makedirs(lvl3path)
 
-                """Here we're going to make each of the input files by calling 
-                the functions declared later in this package"""
+                #Here we're going to make each of the input files by calling 
+                #the functions declared later in this package
 
                 getPOTCAR(lvl3path, index)
 
