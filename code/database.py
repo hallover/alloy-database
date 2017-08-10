@@ -1,11 +1,3 @@
-import os
-from os.path import isfile, join
-import zipfile as Z
-
-from getpass import getuser
-
-
-
 """We're going to use this script a lot. What I've been doing for 
 developmental purposes is running python from the terminal, 
 importing this module, and running the functions individually.
@@ -40,12 +32,19 @@ VASP - Density Functional Theory package
        energy levels for each run.
     IBZKPT = Gives us the number and location of each irreducible k-point
 
-
-
-
-
-
 """
+
+
+import os
+import zipfile as Z
+from os.path import isfile, join
+from getpass import getuser
+
+
+
+
+
+
 
 zipfiles = []
 pscrList = []
@@ -67,14 +66,8 @@ finishedpath = "/fslhome/" + netID + "/vasp/alloydatabase/finished/"
 databasepath = "/fslhome/" + netID + "/vasp/database/code/"
 
 def buildDIRS():
-    """Once we have the zip files all in the /alloyzips folder, 
-    we are going to run this function. It builds the directory tree and
-    creates all of the input files for VASP.
+    #Once we have the zip files all in the /alloyzips folder, we are going to run this function. It builds the directory tree and creates all of the input files for VASP.
     
-
-    """
-
-
     #Set up directory loop
     dirs = [d for d in os.listdir(newpath) if os.path.isdir(os.path.join(newpath, d))]
     index = 0
@@ -121,7 +114,7 @@ def getFILES():
 
     zipnames = [f for f in os.listdir(zippath) if isfile(join(zippath,f))]
     
-    global ptcrSpecList
+#    global ptcrSpecList
     global inputzips
     name = []
     
@@ -283,10 +276,6 @@ def runFirstBatch():
                     if k == n:
                         
                         os.system("cd " + lvl3path + "; sbatch RUN.sh")
-        else:
-            keepgoing = 1
-        
-            
 
 
 def cpCHGCAR():
@@ -306,20 +295,8 @@ def cpCHGCAR():
                 print(n)
                 os.system("for d in " + lvl2path + "/*/; do cp " +lvl2path + "/" + str(n).zfill(2) + "kpts/CHGCAR \"$d\"; done")
 
-        else:
-            zzz = 1
-                
 
-def readOUTCAR():
 
-    
-    for metal in sorted(dirs):
-        path = newpath + metal
-        print(path)
-
-        for n in range(4,45,3):
-            n = 1
-                    
 def editSlurm():
 
     dirs = sorted([d for d in os.listdir(newpath) if os.path.isdir(os.path.join(newpath, d))])
@@ -332,7 +309,7 @@ def editSlurm():
         userinput = input("y (1) or n (0): ")
         if userinput == 1:
             
-            for n in range(4,45,3):
+0            for n in range(4,45,3):
                 lvl2path = path + "/" + str(n).zfill(2) + "frzkpts"
                 for k in range(n,44,3):
                     lvl3path = lvl2path + "/" + str(k).zfill(2) + "kpts"
@@ -436,8 +413,7 @@ def runSecondBatch():
 
                     if n != k:
                         os.system("cd " + lvl3path + "; sbatch RUN.sh")         
-        else:
-            zzz = 1        
+                    
     return
 
 def copyData():
@@ -454,5 +430,3 @@ def copyData():
         if userinput == 1:
             os.system("rsync -r " + path + " " + finishedpath + dirs[metal])
 
-        else:
-            zzz = 1
