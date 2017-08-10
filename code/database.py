@@ -61,7 +61,7 @@ inputzips = []
 netID = getuser()
 
 
-zippath = "/fslhome/" + netID + "/work/vasp/alloydatabase/alloyzips/"
+zippath = "/fslhome/" + netID + "/vasp/alloydatabase/alloyzips/"
 newpath = "/fslhome/" + netID + "/vasp/alloydatabase/metalsdir/"
 finishedpath = "/fslhome/" + netID + "/vasp/alloydatabase/finished/"
 databasepath = "/fslhome/" + netID + "/vasp/database/code/"
@@ -103,8 +103,6 @@ def buildDIRS():
                 with open(lvl3path + "/POSCAR" , "w") as f:
                     f.write(inputzips[index][1])
 
-                #with open(lvl3path + "/preINCAR", "w") as f:
-                 #   f.write(incrList[index])
                 
                 if k == n:
                     first = True
@@ -114,15 +112,13 @@ def buildDIRS():
                 makeINCAR(lvl3path, first, index)
                 makeKPOINTS(lvl3path, k)
                 makeSlurm(lvl3path, n, k, metal)
-     #   print(index)
-        #print(incrList[index])
+
         index += 1
     return
 
 
 def getFILES():
-#    zippath = "/fslhome/holiver2/work/vasp/alloydatabase/alloyzips/"
-#    newpath = "/fslhome/holiver2/work/vasp/alloydatabase/metalsdir/"
+
     zipnames = [f for f in os.listdir(zippath) if isfile(join(zippath,f))]
     
     global ptcrSpecList
@@ -136,7 +132,6 @@ def getFILES():
         pscrList.append(Z.ZipFile.read(zipfiles[nfile],inside[0]))
         kptList.append(inside[1])
         incrList.append(Z.ZipFile.read(zipfiles[nfile],inside[2]))
-#        print(incrList[nfile])
 
         spec = Z.ZipFile.read(zipfiles[nfile],inside[3])
         ptcrSpecList.append(spec.split()) # removed sorted()
@@ -144,18 +139,9 @@ def getFILES():
 
 
     inputzips = sorted(zip(name,pscrList,kptList,incrList,ptcrSpecList))
-#    print(inputzips)
-
-#    for i in inputzips:
-        #print(i)
-#        print("\n")
         
     for nfile in range(0,len(inputzips)):
-        #print(ptcrSpecList[nfile])
-        #print(incrList[nfile])
-        #dirpath = newpath + str(nfile).zfill(2) + "-" + name[nfile]
 
-        #print(inputzips[nfile][0])
         dirpath = newpath + name[nfile]
         if not os.path.exists(dirpath):
             os.makedirs(dirpath)
@@ -169,11 +155,10 @@ def getFILES():
 
 def getPOTCAR(path, index):
 
-    #print(ptcrSpecList)
+
     from element import Element
     potpath = path + "/POTCAR"
-#    print(index)
- #   print(inputzips[index][4])
+
     formula = inputzips[index][4] #chooses the potcarspec list from the sorted directory 'inputzips'
     
     
@@ -222,61 +207,12 @@ def makeINCAR(path, first, index):
             
         else:
             f.write(incarstr.replace("ICHARG = 1", "ICHARG = 11"))
-
-        
-            
-        """
-    This is the custom INCAR I made. It doesn't work very well.
-        f.write("ISTART = 0 \n")
-        f.write("ISMEAR = -1\n")
-        f.write("SIGMA = .2\n")
-        
-        
-        if first == True:
-            f.write("ICHARG = 0\n")                                                   
-        else:
-            f.write("ICHARG = 11\n")
-        f.write("ENCUT = 500\n")
-        
-        f.write("ALGO = NORMAL \n")
-        f.write("IBRION = 2\n")
-        f.write("PREC = H\n")
-        f.write("NELMIN = 4\n")
-
-
-        f.write("NSW = 1\n")
-        #f.write("EDIFF = .0001\n")
-        #f.write("EDIFFG = 0.001\n")
-        f.write("POTIM = 1.0\n")
-        f.write("ISIF = 4\n")
-    """
-    """        f.write("ALGO = Fast\n")
-        f.write("EDIFF = 0.00025\n")
-        f.write("ENCUT = 520\n")
-        f.write("IBRION = 2\n")
-        if first == True:
-            f.write("ICHARG = 1\n")
-        else:
-            f.write("ICHARG = 11\n")
-        f.write("ISIF = 3")"""
-
-
     return
-
 
 def makeSlurm(path, frz, kpts, name):
     with open(path + "/RUN.sh", "w") as f:
         f.write("#!/bin/bash\n")
-        
-        """Better approximations for walltime and memory usage
-        n < 10 ... 0:15:00, 1000M
-        n < 20 ... 0:30:00, 2000M
-        n < 30 ... 1:00:00, 3000M
-        n > 30 ... 2:00:00, 6000M
-        
-        4*(NGXF/2+1)*NGYF*NGZF*16
-        NKDIM*NBANDS*NRPLWV*16
-        """
+
         if kpts == 4:
             f.write("#SBATCH --time=00:30:00   # walltime\n")
             f.write("#SBATCH --mem-per-cpu=2000M   # memory per CPU core\n")
@@ -311,7 +247,7 @@ def makeSlurm(path, frz, kpts, name):
         f.write("#SBATCH -J " + name[0] +"-"+ str(frz).zfill(2) +"-"+ str(kpts).zfill(2) +" #job name\n")
         f.write("#SBATCH --mail-user=haydenoliver@physics.byu.edu #email\n")
         f.write("#SBATCH --mail-type=FAIL\n")
-        #f.write("#SBATCH --gid=glh43physicsnodes\n")
+
         
         f.write("# Compatibility variables for PBS. Delete if not needed.\n\n")
         f.write("export PBS_NODEFILE=`/fslapps/fslutils/generate_pbs_nodefile`\n")
@@ -330,8 +266,7 @@ def makeSlurm(path, frz, kpts, name):
 
 
 def runFirstBatch():
-#    zippath = "/fslhome/holiver2/work/vasp/alloydatabase/alloyzips/"
-#    newpath = "/fslhome/holiver2/work/vasp/alloydatabase/metalsdir/"
+
     dirs = sorted([d for d in os.listdir(newpath) if os.path.isdir(os.path.join(newpath,d))])
     index = 0
     for metal in range(len(dirs)):   
@@ -355,7 +290,7 @@ def runFirstBatch():
 
 
 def cpCHGCAR():
-#    newpath= "/fslhome/holiver2/work/vasp/alloydatabase/metalsdir/"
+
 
     dirs = sorted([d for d in os.listdir(newpath) if os.path.isdir(os.path.join(newpath,d))])
 
@@ -371,16 +306,12 @@ def cpCHGCAR():
                 print(n)
                 os.system("for d in " + lvl2path + "/*/; do cp " +lvl2path + "/" + str(n).zfill(2) + "kpts/CHGCAR \"$d\"; done")
 
-                #for k in range(n,44,3):
-                 #   lvl3path = lvl2path + "/" + str(k).zfill(2) + "kpts"
-                
-            
         else:
             zzz = 1
                 
 
 def readOUTCAR():
-#    newpath = "/fslhome/holiver2/work/vasp/alloydatabase/metalsdir/"
+
     
     for metal in sorted(dirs):
         path = newpath + metal
@@ -390,9 +321,6 @@ def readOUTCAR():
             n = 1
                     
 def editSlurm():
-#    zippath = "/fslhome/holiver2/work/vasp/alloydatabase/alloyzips/"
-#    newpath = "/fslhome/holiver2/work/vasp/alloydatabase/metalsdir/"
-
 
     dirs = sorted([d for d in os.listdir(newpath) if os.path.isdir(os.path.join(newpath, d))])
 
@@ -418,11 +346,10 @@ def editSlurm():
 
 def gatherData():
 
-    """This function is still in development, hence the very specific and non-dynamic instructions.
-Once it is finished, we will have the ability to read the data from all the vasp runs"""
-
+    #This function is still in development, hence the very specific and non-dynamic instructions. Once it is finished, we will have the ability to read the data from all the vasp runs
     
-#    newpath = "/fslhome/holiver2/work/vasp/alloydatabase/metalsdir/"
+    
+    newpath = "/fslhome/holiver2/work/vasp/alloydatabase/metalsdir/"
     dirs = sorted([d for d in os.listdir(newpath) if os.path.isdir(os.path.join(newpath, d))])
 
     freeEnergy = []
@@ -432,7 +359,7 @@ Once it is finished, we will have the ability to read the data from all the vasp
     energySigma0 = []
     totalCPUtime = []
     for metal in range(len(dirs)):
-        #path = newpath + dirs[metal]
+        
         path = "/fslhome/holiver2/work/vasp/alloydatabase/finished/0-CdCoN"
         print(dirs[metal])
         userinput = input("1 = yes, 0 = no")
@@ -442,7 +369,7 @@ Once it is finished, we will have the ability to read the data from all the vasp
                 
                 for k in range(n,44,3):
                     lvl3path = lvl2path + "/" + str(k).zfill(2) + "kpts"
-                    #lvl3path = path
+        
                     
                     outcarpath = lvl3path + "/OUTCAR"
                     ibzkptpath = lvl3path + "/IBZKPT"
@@ -451,9 +378,9 @@ Once it is finished, we will have the ability to read the data from all the vasp
                     with open(outcarpath, 'r') as f:
                         mylines = f.readlines()
                     mylines.reverse()
-                    #print(k)
+        
                     for line in mylines:
-                    #print(line)
+        
                         if "free energy    TOTEN" in line:
                         
                             freeEnergy.append(line)
@@ -481,7 +408,7 @@ Once it is finished, we will have the ability to read the data from all the vasp
         
             for i in freeEnergy:
                 splitFreeEnergy.append(i.split())
-            #print(splitFreeEnergy[::5])
+        
             for i in splitFreeEnergy:
                 print(i[4])
     
@@ -489,7 +416,7 @@ Once it is finished, we will have the ability to read the data from all the vasp
 
 
 def runSecondBatch():
-#    newpath = "/fslhome/holiver2/work/vasp/alloydatabase/metalsdir/"
+
     dirs = sorted([d for d in os.listdir(newpath) if os.path.isdir(os.path.join(newpath, d))])
 
     for metal in range(len(dirs)):
@@ -506,24 +433,7 @@ def runSecondBatch():
                 for k in range(n,44,3):
                     
                     lvl3path = lvl2path + "/" + str(k).zfill(2) + "kpts"    
-                    """
-                    outcarpath = lvl3path + "/OUTCAR"
 
-                    if os.path.exists(outcarpath):
-                    
-                        with open(outcarpath, "r") as f:
-                            for line in f:
-                                redo = False
-                                if "General timing and accounting informations" in line:
-                                   # os.system("cd " + lvl3path + "; sbatch RUN.sh")
-                                    redo = False
-                                    break
-                                else:
-                                    redo = True
-
-                                if redo == True:
-                                    os.system("cd " + lvl3path + "; sbatch RUN.sh")
-                    """                                    
                     if n != k:
                         os.system("cd " + lvl3path + "; sbatch RUN.sh")         
         else:
