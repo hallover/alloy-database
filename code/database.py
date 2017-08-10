@@ -272,28 +272,28 @@ def makeSlurm(path, frz, kpts, name):
         """
         if kpts == 4:
             f.write("#SBATCH --time=00:30:00   # walltime\n")
-            f.write("#SBATCH --mem-per-cpu=1000M   # memory per CPU core\n")
+            f.write("#SBATCH --mem-per-cpu=2000M   # memory per CPU core\n")
         elif kpts == 7:
             f.write("#SBATCH --time=01:00:00   # walltime\n")
-            f.write("#SBATCH --mem-per-cpu=2000M   # memory per CPU core\n")       
+            f.write("#SBATCH --mem-per-cpu=4000M   # memory per CPU core\n")       
         elif kpts == 10 or kpts == 13:
             f.write("#SBATCH --time=02:00:00   # walltime\n")
-            f.write("#SBATCH --mem-per-cpu=4000M   # memory per CPU core\n") 
+            f.write("#SBATCH --mem-per-cpu=8000M   # memory per CPU core\n") 
         elif kpts == 16 or kpts == 19:
             f.write("#SBATCH --time=03:00:00   # walltime\n")
-            f.write("#SBATCH --mem-per-cpu=8000M   # memory per CPU core\n")    
+            f.write("#SBATCH --mem-per-cpu=12000M   # memory per CPU core\n")    
         elif kpts == 22 or kpts == 25:
             f.write("#SBATCH --time=04:00:00   # walltime\n")
-            f.write("#SBATCH --mem-per-cpu=8000M # memory per CPU core\n")
+            f.write("#SBATCH --mem-per-cpu=18000M # memory per CPU core\n")
         elif kpts == 28 or kpts == 31:
             f.write("#SBATCH --time=06:00:00   # walltime\n")                        
-            f.write("#SBATCH --mem-per-cpu=15000M   # memory per CPU core\n")
+            f.write("#SBATCH --mem-per-cpu=26000M   # memory per CPU core\n")
         elif kpts == 34 or kpts == 37:
             f.write("#SBATCH --time=08:00:00   # walltime\n")
-            f.write("#SBATCH --mem-per-cpu=30000M   # memory per CPU core\n") 
+            f.write("#SBATCH --mem-per-cpu=50000M   # memory per CPU core\n") 
         elif kpts == 40 or kpts == 43:
             f.write("#SBATCH --time=12:00:00 # walltime\n")
-            f.write("#SBATCH --mem-per-cpu=60000M # memory per CPU core\n")
+            f.write("#SBATCH --mem-per-cpu=80000M # memory per CPU core\n")
 
             
 
