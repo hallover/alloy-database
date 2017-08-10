@@ -44,13 +44,15 @@ VASP - Density Functional Theory package
 """
 
 zipfiles = []
-pscrList = []                                                                                     
+pscrList = []
+incrList = []     
 kptList = []
 ptcrSpecList = []    
 name = []
 pscrList = []
 
 inputzips = []
+
 
 zippath = "/fslhome/holiver2/work/vasp/alloydatabase/alloyzips/"
 newpath = "/fslhome/holiver2/work/vasp/alloydatabase/metalsdir/"
@@ -158,6 +160,11 @@ def getFILES():
         if not os.path.exists(dirpath):
             os.makedirs(dirpath)
 
+    with open("/fslhome/holiver2/work/vasp/database/code/namelist.txt", "w") as f:
+        for entry in sorted(name):
+            f.write(entry)
+            f.write("\n")
+            
     return
 
 def getPOTCAR(path, index):
