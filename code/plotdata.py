@@ -1,6 +1,5 @@
 
 from matplotlib import pyplot as plt
-import numpy as np
 
 base = 92
 path = "/fslhome/holiver2/work/vasp/alloydatabase/finished/0-CdCoN/"
@@ -132,7 +131,8 @@ del eSIGMA0[0]
 
 print(ikpts)
     
-"""Now we're going to plot the data"""
+#Now we're going to plot the data
+
 base = 92 #line number 93 is the 43x43x43 kpt grid
 
 for i in range(len(ikpts)):
@@ -160,37 +160,3 @@ plt.savefig('graph4.pdf')
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#print(TOTEN[base])
-
-
-#print(errorTOTEN)
-"""
-plt.scatter(IRRKPTS, errorTOTEN)
-#plt.loglog()
-plt.xlabel("# of Irreducible Kpoints")
-plt.ylabel("Error")
-plt.title("nKpoints vs error")
-plt.savefig('graph1.pdf', bbox_inches='tight')
-
-
-plt.scatter(IRRKPTS, CPUTIME)
-plt.xlabel("Irreducible Kpoints")
-plt.ylabel("Time")
-plt.savefig('graph2.pdf', bbox_inches='tight')
-
-#plt.scatter(
-"""
