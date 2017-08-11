@@ -309,7 +309,7 @@ def editSlurm():
         userinput = input("y (1) or n (0): ")
         if userinput == 1:
             
-0            for n in range(4,45,3):
+            for n in range(4,45,3):
                 lvl2path = path + "/" + str(n).zfill(2) + "frzkpts"
                 for k in range(n,44,3):
                     lvl3path = lvl2path + "/" + str(k).zfill(2) + "kpts"
