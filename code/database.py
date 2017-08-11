@@ -276,8 +276,16 @@ def runFirstBatch():
                 for k in range(n,44,3):
                     lvl3path = lvl2path + "/" + str(k).zfill(2) + "kpts"    
                     if k == n:
-                        
-                        os.system("cd " + lvl3path + "; sbatch RUN.sh")
+                        redoJob = True
+                        if os.path.isfile(lvl3path + "/OUTCAR"):
+                            with open(lvl3path + "/OUTCAR", "r") as f:
+                                for line in f.readlines():
+                                    if "General timing and accounting informations" in line:
+                                        redoJob = False
+                                        print(n,k,"Complete")
+                                  
+                        if redoJob == True:
+                            os.system("cd " + lvl3path + "; sbatch RUN.sh")
 
 
 def cpCHGCAR():
@@ -433,9 +441,21 @@ def runSecondBatch():
                     
                     lvl3path = lvl2path + "/" + str(k).zfill(2) + "kpts"    
 
-                    if n != k:
-                        os.system("cd " + lvl3path + "; sbatch RUN.sh")         
                     
+                    if n != k:
+                        redoJob = True 
+                        if os.path.isfile(lvl3path + "/OUTCAR"):
+                            with open(lvl3path + "/OUTCAR", "r") as f:
+                            
+                                for line in f.readlines():
+                                    #If line is detected in OUTCAR, do not resubmit job
+
+                                    if "General timing and accounting informations" in line:
+                                        redoJob = False
+                                        print("Complete")
+                        if redoJob == True:
+                            os.system("cd " + lvl3path + "; sbatch RUN.sh")         
+#                            print("---TRUE---\n")
     return
 
 def copyData():
