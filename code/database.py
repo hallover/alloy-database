@@ -191,9 +191,9 @@ def makeINCAR(path, first, index):
         incarstr = incarstr.replace("NELM = 100","NELM = 50")
         incarstr = incarstr.replace("NSW = 99", "NSW = 1")
         incarstr = incarstr.replace("ISIF = 3", "ISIF = 0")
-        
+        incarstr = incarstr.replace("ISPIN = 2", "ISPIN = 1")
 
-
+        f.write("NBANDS = 20\n")
 
         if first == True:
             f.write(incarstr.replace("ICHARG = 1","ICHARG = 0"))
@@ -202,6 +202,7 @@ def makeINCAR(path, first, index):
         else:
             f.write(incarstr.replace("ICHARG = 1", "ICHARG = 11"))
     return
+
 
 def makeSlurm(path, frz, kpts, name):
     with open(path + "/RUN.sh", "w") as f:
@@ -238,7 +239,7 @@ def makeSlurm(path, frz, kpts, name):
         f.write("#SBATCH --ntasks=1   # number of processor cores (i.e. tasks)\n")
         f.write("#SBATCH --nodes=1   # number of nodes\n")
         
-        f.write("#SBATCH -J " + name[0] +"-"+ str(frz).zfill(2) +"-"+ str(kpts).zfill(2) +" #job name\n")
+        f.write("#SBATCH -J " + name +"-"+ str(frz).zfill(2) +"-"+ str(kpts).zfill(2) +" #job name\n")
         f.write("#SBATCH --mail-user=haydenoliver@physics.byu.edu #email\n")
         f.write("#SBATCH --mail-type=FAIL\n")
 
@@ -318,6 +319,27 @@ def editSlurm():
                     makeSlurm(lvl3path, n, k, dirs[metal])                                     
                                                                           
     return
+
+def editIncar():
+    getFILES()
+    dirs = sorted ([d for d in os.listdir(newpath) if os.path.isdir(os.path.join(newpath, d))])
+
+    for metal in range(len(dirs)):
+        path = newpath + dirs[metal]
+        print(path)
+
+        userinput = input("y (1) ur n (0): ")
+        if userinput == 1:
+            for n in range(4,45,3):
+                lvl2path = path + "/" + str(n).zfill(2) + "frzkpts"
+                for k in range(n,44,3):
+                    lvl3path = lvl2path + "/" + str(k).zfill(2) + "kpts"
+
+                    if k == n:
+                        first = True
+                    else:
+                        first = False
+                    makeINCAR(lvl3path,first,metal)
 
 
 def gatherData():
