@@ -66,7 +66,8 @@ finishedpath = "/fslhome/" + netID + "/vasp/alloydatabase/finished/"
 databasepath = "/fslhome/" + netID + "/vasp/database/code/"
 
 def buildDIRS():
-    #Once we have the zip files all in the /alloyzips folder, we are going to run this function. It builds the directory tree and creates all of the input files for VASP.
+    #Once we have the zip files all in the /alloyzips folder, we are going to run this function.
+    #It builds the directory tree and creates all of the input files for VASP.
     
     #Set up directory loop
     dirs = [d for d in os.listdir(newpath) if os.path.isdir(os.path.join(newpath, d))]
@@ -261,7 +262,7 @@ def makeSlurm(path, frz, kpts, name):
 def runFirstBatch():
 
     dirs = sorted([d for d in os.listdir(newpath) if os.path.isdir(os.path.join(newpath,d))])
-    index = 0
+    
     for metal in range(len(dirs)):   
         path = newpath + dirs[metal]
         print(dirs[metal])
@@ -315,15 +316,14 @@ def editSlurm():
                     lvl3path = lvl2path + "/" + str(k).zfill(2) + "kpts"
 
                     makeSlurm(lvl3path, n, k, dirs[metal])                                     
-        else:
-            zzz = 1        
                                                                           
     return
 
 
 def gatherData():
 
-    #This function is still in development, hence the very specific and non-dynamic instructions. Once it is finished, we will have the ability to read the data from all the vasp runs
+    #This function is still in development, hence the very specific and non-dynamic instructions.
+    #Once it is finished, we will have the ability to read the data from all the vasp runs
     
     
     newpath = "/fslhome/holiver2/work/vasp/alloydatabase/metalsdir/"
@@ -333,7 +333,7 @@ def gatherData():
     eNoEntropy = []
     atomicEnergy = []
     ewaldEnergy = []
-    energySigma0 = []
+#    energySigma0 = []
     totalCPUtime = []
     for metal in range(len(dirs)):
         
@@ -349,7 +349,7 @@ def gatherData():
         
                     
                     outcarpath = lvl3path + "/OUTCAR"
-                    ibzkptpath = lvl3path + "/IBZKPT"
+                    #ibzkptpath = lvl3path + "/IBZKPT"
 
                     mylines = ""
                     with open(outcarpath, 'r') as f:
