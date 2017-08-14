@@ -2,7 +2,9 @@
 from matplotlib import pyplot as plt
 
 base = 92
-path = "/fslhome/holiver2/work/vasp/alloydatabase/finished/0-CdCoN/"
+path = "/fslhome/holiver2/vasp/alloydatabase/"
+
+dirs = sorted([d for d in os.listdir(newpath) if os.path.isdir(os.path.join(newpath,d))])
 
 EATOM = []
 PSCENC = []

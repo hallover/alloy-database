@@ -13,3 +13,5 @@ find . -name OUTCAR -exec awk '/free energy/ {energy = $5}; END {print FILENAME 
 #do
 
 find . -name OUTCAR -exec awk '/free energy/ {energy = $5}; END {print FILENAME " " energy}' {} \; >> fenergy.txt
+
+find . -name OUTCAR -exec awk '/free energy/ {energy = $5}; END {print FILENAME " " energy}' {} \; >> 
