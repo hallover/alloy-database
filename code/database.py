@@ -193,7 +193,7 @@ def makeINCAR(path, first, index):
         incarstr = incarstr.replace("ISIF = 3", "ISIF = 0")
         incarstr = incarstr.replace("ISPIN = 2", "ISPIN = 1")
 
-        f.write("NBANDS = 20\n")
+        f.write("NBANDS = 100\n")
 
         if first == True:
             f.write(incarstr.replace("ICHARG = 1","ICHARG = 0"))
@@ -355,8 +355,9 @@ def gatherData():
     #This function is still in development, hence the very specific and non-dynamic instructions.
     #Once it is finished, we will have the ability to read the data from all the vasp runs
     
+    import numpy as np
     
-    newpath = "/fslhome/holiver2/work/vasp/alloydatabase/metalsdir/"
+    newpath = "/fslhome/" + netID + "/vasp/alloydatabase/metalsdir/"
     dirs = sorted([d for d in os.listdir(newpath) if os.path.isdir(os.path.join(newpath, d))])
 
     freeEnergy = []
@@ -364,10 +365,14 @@ def gatherData():
     atomicEnergy = []
     ewaldEnergy = []
 #    energySigma0 = []
+    irrkpts = []
     totalCPUtime = []
+    setloc = []
+    
     for metal in range(len(dirs)):
         
-        path = "/fslhome/holiver2/work/vasp/alloydatabase/finished/0-CdCoN"
+        #path = "/fslhome/holiver2/work/vasp/alloydatabase/finished/0-CdCoN"
+        path = newpath + dirs[metal]
         print(dirs[metal])
         userinput = input("1 = yes, 0 = no")
         if userinput == 1:
@@ -384,40 +389,59 @@ def gatherData():
                     mylines = ""
                     with open(outcarpath, 'r') as f:
                         mylines = f.readlines()
-                    mylines.reverse()
+#                    mylines.reverse()
         
                     for line in mylines:
         
                         if "free energy    TOTEN" in line:
-                        
-                            freeEnergy.append(line)
+                            freeEnergy1 = line
                         if "energy without entropy " in line:
-                            eNoEntropy.append(line)
-                        if "atomic energy " in line:
-                            atomicEnergy.append(line)
-                        if "Ewald energy " in line:
-                            ewaldEnergy.append(line)
+                            eNoEntropy1 = line
+                        if "atomic energy  EATOM  =" in line:
+                            atomicEnergy1 = line
+                        if "Ewald energy   TEWEN  =" in line:
+                            ewaldEnergy1 = line
                         if "Total CPU time used " in line:
-                            totalCPUtime.append(line)
-                        
+                            totalCPUtime1 = line
+                        if "irreducible k-points:" in line:
+                            irrkpts1 = line
 
-                resultspath = "/fslhome/holiver2/work/vasp/alloydatabase/finished/" + dirs[metal] + "RESULTS.txt"
+                            
+                    freeEnergy.append(float(freeEnergy1.split()[4]))
+                    eNoEntropy.append(float(eNoEntropy1.split()[4]))
+                    atomicEnergy.append(float(atomicEnergy1.split()[4]))
+                    ewaldEnergy.append(float(ewaldEnergy1.split()[4]))
+                    totalCPUtime.append(float(totalCPUtime1.split()[5]))
+                    irrkpts.append(int(irrkpts1.split()[1]))
+                    setloc.append(str(n).zfill(2) + "-" + str(k).zfill(2))
+                    
+    #freeEnergy = np.array(freeEnergy)
+    print(len(freeEnergy))#[:,4])
+    print(len(totalCPUtime))
+
+    alldatazip = zip(setloc,irrkpts,totalCPUtime,freeEnergy,atomicEnergy,ewaldEnergy,eNoEntropy)
+
+    print(alldatazip)
+
+    
+    
+    
+#                resultspath = "/fslhome/holiver2/work/vasp/alloydatabase/finished/" + dirs[metal] + "RESULTS.txt"
                 
-            splitFreeEnergy = []
+ #           splitFreeEnergy = []
 
 
-
-            with open(resultspath, "w") as f:
-                for i in freeEnergy:
-                    f.write(i)
-                    f.write(", ")
+            #with open(resultspath, "w") as f:
+            #    for i in freeEnergy:
+            #        f.write(i)
+            #        f.write(", ")
             
         
-            for i in freeEnergy:
-                splitFreeEnergy.append(i.split())
+            #for i in freeEnergy:
+            #    splitFreeEnergy.append(i.split())
         
-            for i in splitFreeEnergy:
-                print(i[4])
+            #for i in splitFreeEnergy:
+            #    print(i[4])
     
     return
 
