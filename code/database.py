@@ -351,25 +351,22 @@ def editIncar():
 
 
 def gatherData():
-
-    #This function is still in development, hence the very specific and non-dynamic instructions.
-    #Once it is finished, we will have the ability to read the data from all the vasp runs
-    
     import numpy as np
     
     newpath = "/fslhome/" + netID + "/vasp/alloydatabase/metalsdir/"
     dirs = sorted([d for d in os.listdir(newpath) if os.path.isdir(os.path.join(newpath, d))])
 
-    freeEnergy = []
-    eNoEntropy = []
-    atomicEnergy = []
-    ewaldEnergy = []
-#    energySigma0 = []
-    irrkpts = []
-    totalCPUtime = []
-    setloc = []
-    
     for metal in range(len(dirs)):
+        freeEnergy = []
+        eNoEntropy = []
+        atomicEnergy = []
+        ewaldEnergy = []
+        energySigma0 = []
+        irrkpts = []
+        totalCPUtime = []
+        setloc = []
+        alphaz = []
+        eigenvalues = []
         
         #path = "/fslhome/holiver2/work/vasp/alloydatabase/finished/0-CdCoN"
         path = newpath + dirs[metal]
@@ -405,6 +402,13 @@ def gatherData():
                             totalCPUtime1 = line
                         if "irreducible k-points:" in line:
                             irrkpts1 = line
+                        if "eigenvalues    EBANDS =" in line:
+                            eigenvalues1 = line
+                        if "alpha Z        PSCENC" in line:
+                            alphaz1 = line
+                        if "energy without entropy =" in line:
+                            energySigma01 = line
+#Alldatazip order = kptorder,cputime,irrkpts,freeEnergy,ewaldEnergy,alphaZ,energySigma0,energyNoEntropy,eigenvalues
 
                             
                     freeEnergy.append(float(freeEnergy1.split()[4]))
@@ -413,35 +417,123 @@ def gatherData():
                     ewaldEnergy.append(float(ewaldEnergy1.split()[4]))
                     totalCPUtime.append(float(totalCPUtime1.split()[5]))
                     irrkpts.append(int(irrkpts1.split()[1]))
-                    setloc.append(str(n).zfill(2) + "-" + str(k).zfill(2))
-                    
-    #freeEnergy = np.array(freeEnergy)
-    print(len(freeEnergy))#[:,4])
-    print(len(totalCPUtime))
+                    setloc.append([n,k])
+                    energySigma0.append(float(energySigma01.split()[7]))
+                    alphaz.append(float(alphaz1.split()[4]))
+                    eigenvalues.append(float(eigenvalues1.split()[3]))
 
-    alldatazip = zip(setloc,irrkpts,totalCPUtime,freeEnergy,atomicEnergy,ewaldEnergy,eNoEntropy)
+        alldatazip = zip(setloc,totalCPUtime,irrkpts,freeEnergy,ewaldEnergy,alphaz,energySigma0,eNoEntropy,eigenvalues)
+        
 
-    print(alldatazip)
+        #    print(alldatazip)
+        
+        for i in alldatazip:
+            print(i)
+        #plotdata(alldatazip)
+        
+    return
+
+def plotdata(alldatazip):
+    #baseline = alldatazip[-1]
+    errFreeEnergy = []
+    errAtomicEnergy = []
+    errEwaldEnergy = []
+    errNoEntropy = []
 
     
+    """
+    a04 = []
+    a07 = []
+    a10 = []
+    a13 = []
+    a16 = []
+    a19 = []
+    a22 = []
+    a25 = []
+    a28 = []
+    a31 = []
+    a34 = []
+    a37 = []
+    a40 = []
+    a43 = []
+"""
+    f = 4
+
+    errorAllData = []
+    for i in range(0,len(alldatazip)-1):
+        A = []
+        A.append(alldatazip[i][0])
+        for j in range(1,len(alldatazip[-1])):
+            a = abs(alldatazip[-1][j] - alldatazip[i][j])
+            A.append(a)
+
+        A[2] = alldatazip[i][2]
+        errorAllData.append(A)
+
+    kpts = 4
+    eTOTEN = []
     
-    
-#                resultspath = "/fslhome/holiver2/work/vasp/alloydatabase/finished/" + dirs[metal] + "RESULTS.txt"
-                
- #           splitFreeEnergy = []
+    eTEWEN = []
+    ePSCENC = []
+    eSIGMA0 = []
+    e_nENTRO = []
+    eEBANDS = []
+    ikpts = []   
 
 
-            #with open(resultspath, "w") as f:
-            #    for i in freeEnergy:
-            #        f.write(i)
-            #        f.write(", ")
+    #Alldatazip order = kptorder,cputime,irrkpts,freeEnergy,tewen,pscenc,sigma0,nentro,ebands
+
+    
+    for h in range(0,14):
+        a = []
+        b = []
+        c = []
+        d = []
+        e = []
+        f = []
+        irrk = []
             
+        #KPTORDER,CPUTIME,IRRKPTS,TOTEN,TEWEN,PSCENC,SIGMA0,nENTRO,EBANDS
         
-            #for i in freeEnergy:
-            #    splitFreeEnergy.append(i.split())
+        for i in range(len(error_alldata)):
+            if error_alldata[i][0][0] == kpts:
+                
+                a.append(alldata[i][3])
+                b.append(error_alldata[i][4])
+                c.append(error_alldata[i][5])
+                d.append(error_alldata[i][6])
+                e_nENTRO.append(error_alldata[i][7])
+                f.append(error_alldata[i][8])
+                irrk.append(error_alldata[i][2])
+                
+        kpts = 3 * h + 4
         
-            #for i in splitFreeEnergy:
-            #    print(i[4])
+        eTOTEN.append(a)
+        eTEWEN.append(b)
+        ePSCENC.append(c)
+        eSIGMA0.append(d)
+        e_nENTRO.append(e)
+        eEBANDS.append(f)
+        ikpts.append(irrk)
+        
+    del eTOTEN[0]
+    del ikpts[0]
+    del eSIGMA0[0]
+                                                                                             
+    print(ikpts)     
+
+    errorset = [eTOTEN,eTEWEN,ePSCENC,eSIGMA0,e_nENTRO,eEBANDS]
+    
+    for batch in errorset: 
+        for i in range(len(ikpts)):
+            plt.plot(ikpts[i],batch)
+                    
+        plt.loglog()
+        plt.xlabel("Irreducible k-points")
+        plt.ylabel("Error")
+        plt.title("Energy Sigma -> 0")
+        plt.savefig('graph3.pdf')  
+
     
     return
 

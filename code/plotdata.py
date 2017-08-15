@@ -1,4 +1,4 @@
-
+import os
 from matplotlib import pyplot as plt
 
 base = 92
@@ -148,8 +148,7 @@ plt.savefig('graph3.pdf')
 
 
 for i in range(len(ikpts)):
-#    print(ikpts[i])
-    n = 4 + i * 3
+
     plt.plot(ikpts[i],eTOTEN[i], label=str(n) + 'frzkpts')
 plt.loglog()
 plt.legend(loc='best')
