@@ -39,8 +39,7 @@ import os
 import zipfile as Z
 from os.path import isfile, join
 from getpass import getuser
-
-
+from matplotlib import pyplot
 
 
 
@@ -351,7 +350,6 @@ def editIncar():
 
 
 def gatherData():
-    import numpy as np
     
     newpath = "/fslhome/" + netID + "/vasp/alloydatabase/metalsdir/"
     dirs = sorted([d for d in os.listdir(newpath) if os.path.isdir(os.path.join(newpath, d))])
@@ -409,8 +407,6 @@ def gatherData():
                         if "energy without entropy =" in line:
                             energySigma01 = line
 #Alldatazip order = kptorder,cputime,irrkpts,freeEnergy,ewaldEnergy,alphaZ,energySigma0,energyNoEntropy,eigenvalues
-
-                            
                     freeEnergy.append(float(freeEnergy1.split()[4]))
                     eNoEntropy.append(float(eNoEntropy1.split()[4]))
                     atomicEnergy.append(float(atomicEnergy1.split()[4]))
@@ -424,55 +420,25 @@ def gatherData():
 
         alldatazip = zip(setloc,totalCPUtime,irrkpts,freeEnergy,ewaldEnergy,alphaz,energySigma0,eNoEntropy,eigenvalues)
         
-
-        #    print(alldatazip)
-        
         for i in alldatazip:
             print(i)
-        #plotdata(alldatazip)
+
         
     return
 
 def plotdata(alldatazip):
-    #baseline = alldatazip[-1]
-    errFreeEnergy = []
-    errAtomicEnergy = []
-    errEwaldEnergy = []
-    errNoEntropy = []
-
-    
-    """
-    a04 = []
-    a07 = []
-    a10 = []
-    a13 = []
-    a16 = []
-    a19 = []
-    a22 = []
-    a25 = []
-    a28 = []
-    a31 = []
-    a34 = []
-    a37 = []
-    a40 = []
-    a43 = []
-"""
-    f = 4
-
-    errorAllData = []
+    error_alldata = []
     for i in range(0,len(alldatazip)-1):
         A = []
         A.append(alldatazip[i][0])
         for j in range(1,len(alldatazip[-1])):
             a = abs(alldatazip[-1][j] - alldatazip[i][j])
             A.append(a)
-
         A[2] = alldatazip[i][2]
-        errorAllData.append(A)
+        error_alldata.append(A)
 
     kpts = 4
     eTOTEN = []
-    
     eTEWEN = []
     ePSCENC = []
     eSIGMA0 = []
@@ -480,9 +446,7 @@ def plotdata(alldatazip):
     eEBANDS = []
     ikpts = []   
 
-
     #Alldatazip order = kptorder,cputime,irrkpts,freeEnergy,tewen,pscenc,sigma0,nentro,ebands
-
     
     for h in range(0,14):
         a = []
