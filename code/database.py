@@ -282,7 +282,7 @@ def runFirstBatch():
                                     if "General timing and accounting informations" in line:
                                         redoJob = False
                                         print(n,k,"Complete")
-                                  
+                                        os.system("for d in " + lvl2path + "/*/; do cp " + lvl2path + "/" + str(n).zfill(2) + "kpts/CHGCAR \"$d\"; done")                      
                         if redoJob == True:
                             os.system("cd " + lvl3path + "; sbatch RUN.sh")
 
@@ -516,7 +516,7 @@ def plotdata(alldatazip, path):
 def runSecondBatch():
 
     dirs = sorted([d for d in os.listdir(newpath) if os.path.isdir(os.path.join(newpath, d))])
-
+    
     for metal in range(len(dirs)):
         path = newpath + dirs[metal]
 
@@ -532,21 +532,26 @@ def runSecondBatch():
                     
                     lvl3path = lvl2path + "/" + str(k).zfill(2) + "kpts"    
 
-                    
+                    #if os.path.isfile(lvl3path + "/CHGCAR"):
                     if n != k:
                         redoJob = True 
                         if os.path.isfile(lvl3path + "/OUTCAR"):
                             with open(lvl3path + "/OUTCAR", "r") as f:
-                            
+                                
                                 for line in f.readlines():
-                                    #If line is detected in OUTCAR, do not resubmit job
-
+                                #If line is detected in OUTCAR, do not resubmit job
+                                    
                                     if "General timing and accounting informations" in line:
                                         redoJob = False
                                         print("Complete")
+                        
+                        if not os.path.isfile(lvl3path + "/CHGCAR"):
+                            print("Resubmit batch 1")
+                            redoJob = False
+                            
                         if redoJob == True:
                             os.system("cd " + lvl3path + "; sbatch RUN.sh")         
-#                            print("---TRUE---\n")
+                    
     return
 
 def copyData():
