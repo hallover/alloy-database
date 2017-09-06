@@ -39,7 +39,7 @@ import os
 import zipfile as Z
 from os.path import isfile, join
 from getpass import getuser
-from matplotlib import pyplot
+from matplotlib import pyplot as plt
 
 
 
@@ -419,16 +419,16 @@ def gatherData():
                     alphaz.append(float(alphaz1.split()[4]))
                     eigenvalues.append(float(eigenvalues1.split()[3]))
 
-        alldatazip = zip(setloc,totalCPUtime,irrkpts,freeEnergy,ewaldEnergy,alphaz,energySigma0,eNoEntropy,eigenvalues)
+            alldatazip = zip(setloc,totalCPUtime,irrkpts,freeEnergy,ewaldEnergy,alphaz,energySigma0,eNoEntropy,eigenvalues)
         
-        for i in alldatazip:
-            print(i)
+        #for i in alldatazip:
+         #   print(i)
 
-        plotdata(alldatazip)
+            plotdata(alldatazip, path)
         
     return
 
-def plotdata(alldatazip):
+def plotdata(alldatazip, path):
     error_alldata = []
     for i in range(0,len(alldatazip)-1):
         A = []
@@ -464,7 +464,7 @@ def plotdata(alldatazip):
         for i in range(len(error_alldata)):
             if error_alldata[i][0][0] == kpts:
                 
-                a.append(alldata[i][3])
+                a.append(alldatazip[i][3])
                 b.append(error_alldata[i][4])
                 c.append(error_alldata[i][5])
                 d.append(error_alldata[i][6])
@@ -486,19 +486,28 @@ def plotdata(alldatazip):
     del ikpts[0]
     del eSIGMA0[0]
                                                                                              
-    print(ikpts)     
+    #print(ikpts)     
 
-    errorset = [eTOTEN,eTEWEN,ePSCENC,eSIGMA0,e_nENTRO,eEBANDS]
+    #errorset = [eTOTEN,eTEWEN,ePSCENC,eSIGMA0,e_nENTRO,eEBANDS]
+
+    #print(ikpts)
+
+    for i in range(len(ikpts)):
+        plt.plot(ikpts[i],eTOTEN[i])
     
-    for batch in errorset: 
-        for i in range(len(ikpts)):
-            plt.plot(ikpts[i],batch)
-                    
-        plt.loglog()
-        plt.xlabel("Irreducible k-points")
-        plt.ylabel("Error")
-        plt.title("Energy Sigma -> 0")
-        plt.savefig('graph3.pdf')  
+    plt.xlabel("Irreducible k-points")
+    plt.ylabel("Error")
+    plt.title("eTOTEN")
+    plt.savefig(path + '/eTOTEN.pdf')
+
+    #for i in range(len(ikpts)):
+#        plt.plot(e_nENTRO[i], ikpts[i])
+#
+#    plt.loglog()
+#    plt.xlabel("Irreducible k-points")
+#    plt.ylabel("Error")
+#    plt.title("Energy without Entropy")
+#    plt.savefig(path + '/eTEWEN.pdf')
 
     
     return
