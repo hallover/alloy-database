@@ -193,7 +193,7 @@ def makeINCAR(path, first, index):
         incarstr = incarstr.replace("ISPIN = 2", "ISPIN = 1")
 
         f.write("NBANDS = 100\n")
-
+        f.write("LMAXMIX = 4\n")
         if first == True:
             f.write(incarstr.replace("ICHARG = 1","ICHARG = 0"))
             
