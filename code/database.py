@@ -184,22 +184,38 @@ def makeKPOINTS(path, kpts):
 def makeINCAR(path, first, index):
     incarpath = path + "/INCAR"
 
-    with open(incarpath, "w") as f:
-        incarstr = inputzips[index][3]
+#    with open(incarpath, "w") as f:
+#        incarstr = inputzips[index][3]
         
-        incarstr = incarstr.replace("NELM = 100","NELM = 50")
-        incarstr = incarstr.replace("NSW = 99", "NSW = 1")
-        incarstr = incarstr.replace("ISIF = 3", "ISIF = 0")
-        incarstr = incarstr.replace("ISPIN = 2", "ISPIN = 1")
+#        incarstr = incarstr.replace("NELM = 100","NELM = 50")
+#        incarstr = incarstr.replace("NSW = 99", "NSW = 1")
+#        incarstr = incarstr.replace("ISIF = 3", "ISIF = 0")
+#        incarstr = incarstr.replace("ISPIN = 2", "ISPIN = 1")
 
+#        f.write("NBANDS = 100\n")
+#        f.write("LMAXMIX = 4\n")
+    with open(incarpath, "w") as f:
+        f.write("IBRION = 2\n")
+        f.write("ISIF = 5\n")
+        f.write("ISMEAR = -1\n")
+        f.write("SIGMA = .001\n")
+        f.write("NSW = 100\n")
+        f.write("POTIM = 0.5\n")
+        f.write("ENCUT = 400\n")
+        f.write("PREC = Accurate\n")
         f.write("NBANDS = 100\n")
-        f.write("LMAXMIX = 4\n")
+        f.write("EDIFF = .00000001\n")
+        f.write("LMAXMIX = 2\n")
+
+
         if first == True:
-            f.write(incarstr.replace("ICHARG = 1","ICHARG = 0"))
-            
+            #f.write(incarstr.replace("ICHARG = 1","ICHARG = 0"))
+            f.write("ICHARG = 1\n")
             
         else:
-            f.write(incarstr.replace("ICHARG = 1", "ICHARG = 11"))
+            #f.write(incarstr.replace("ICHARG = 1", "ICHARG = 11"))
+            f.write("ICHARG = 11\n")
+
     return
 
 
@@ -207,30 +223,32 @@ def makeSlurm(path, frz, kpts, name):
     with open(path + "/RUN.sh", "w") as f:
         f.write("#!/bin/bash\n")
 
+        f.write("#SBATCH --partition=physics \n")
+        
         if kpts == 4:
-            f.write("#SBATCH --time=00:30:00   # walltime\n")
-            f.write("#SBATCH --mem-per-cpu=4000M   # memory per CPU core\n")
+            f.write("#SBATCH --time=00:10:00   # walltime\n")
+            f.write("#SBATCH --mem-per-cpu=1000M   # memory per CPU core\n")
         elif kpts == 7:
-            f.write("#SBATCH --time=01:00:00   # walltime\n")
-            f.write("#SBATCH --mem-per-cpu=8000M   # memory per CPU core\n")       
+            f.write("#SBATCH --time=00:20:00   # walltime\n")
+            f.write("#SBATCH --mem-per-cpu=2000M   # memory per CPU core\n")       
         elif kpts == 10 or kpts == 13:
-            f.write("#SBATCH --time=02:00:00   # walltime\n")
-            f.write("#SBATCH --mem-per-cpu=12000M   # memory per CPU core\n") 
+            f.write("#SBATCH --time=00:40:00   # walltime\n")
+            f.write("#SBATCH --mem-per-cpu=4000M   # memory per CPU core\n") 
         elif kpts == 16 or kpts == 19:
-            f.write("#SBATCH --time=03:00:00   # walltime\n")
-            f.write("#SBATCH --mem-per-cpu=18000M   # memory per CPU core\n")    
+            f.write("#SBATCH --time=01:30:00   # walltime\n")
+            f.write("#SBATCH --mem-per-cpu=6000M   # memory per CPU core\n")    
         elif kpts == 22 or kpts == 25:
-            f.write("#SBATCH --time=04:00:00   # walltime\n")
-            f.write("#SBATCH --mem-per-cpu=30000M # memory per CPU core\n")
+            f.write("#SBATCH --time=02:20:00   # walltime\n")
+            f.write("#SBATCH --mem-per-cpu=9000M # memory per CPU core\n")
         elif kpts == 28 or kpts == 31:
-            f.write("#SBATCH --time=06:00:00   # walltime\n")                        
-            f.write("#SBATCH --mem-per-cpu=45000M   # memory per CPU core\n")
+            f.write("#SBATCH --time=03:30:00   # walltime\n")                        
+            f.write("#SBATCH --mem-per-cpu=10000M   # memory per CPU core\n")
         elif kpts == 34 or kpts == 37:
-            f.write("#SBATCH --time=08:00:00   # walltime\n")
-            f.write("#SBATCH --mem-per-cpu=65000M   # memory per CPU core\n") 
+            f.write("#SBATCH --time=04:30:00   # walltime\n")
+            f.write("#SBATCH --mem-per-cpu=12000M   # memory per CPU core\n") 
         elif kpts == 40 or kpts == 43:
-            f.write("#SBATCH --time=12:00:00 # walltime\n")
-            f.write("#SBATCH --mem-per-cpu=90000M # memory per CPU core\n")
+            f.write("#SBATCH --time=5:30:00 # walltime\n")
+            f.write("#SBATCH --mem-per-cpu=18000M # memory per CPU core\n")
 
             
 
@@ -356,6 +374,8 @@ def gatherData():
     dirs = sorted([d for d in os.listdir(newpath) if os.path.isdir(os.path.join(newpath, d))])
 
     for metal in range(len(dirs)):
+        name = dirs[metal]
+        
         freeEnergy = []
         eNoEntropy = []
         atomicEnergy = []
@@ -381,7 +401,9 @@ def gatherData():
                     
                     outcarpath = lvl3path + "/OUTCAR"
                     #ibzkptpath = lvl3path + "/IBZKPT"
-
+              #      if not os.path.isdir(outcarpath):
+              #          print("nope")
+              #          break
                     mylines = ""
                     with open(outcarpath, 'r') as f:
                         mylines = f.readlines()
@@ -391,23 +413,34 @@ def gatherData():
         
                         if "free energy    TOTEN" in line:
                             freeEnergy1 = line
+                         
                         if "energy without entropy " in line:
                             eNoEntropy1 = line
+                            
                         if "atomic energy  EATOM  =" in line:
                             atomicEnergy1 = line
+                            
                         if "Ewald energy   TEWEN  =" in line:
                             ewaldEnergy1 = line
+                            
                         if "Total CPU time used " in line:
                             totalCPUtime1 = line
+                            
                         if "irreducible k-points:" in line:
                             irrkpts1 = line
+                            
                         if "eigenvalues    EBANDS =" in line:
                             eigenvalues1 = line
+                            
                         if "alpha Z        PSCENC" in line:
                             alphaz1 = line
+                            
                         if "energy without entropy =" in line:
                             energySigma01 = line
-#Alldatazip order = kptorder,cputime,irrkpts,freeEnergy,ewaldEnergy,alphaZ,energySigma0,energyNoEntropy,eigenvalues
+                            
+                    #Alldatazip order = kptorder,cputime,irrkpts,freeEnergy,ewaldEnergy,alphaZ,energySigma0,energyNoEntropy,eigenvalues
+
+                    #print("TEST ")
                     freeEnergy.append(float(freeEnergy1.split()[4]))
                     eNoEntropy.append(float(eNoEntropy1.split()[4]))
                     atomicEnergy.append(float(atomicEnergy1.split()[4]))
@@ -418,27 +451,39 @@ def gatherData():
                     energySigma0.append(float(energySigma01.split()[7]))
                     alphaz.append(float(alphaz1.split()[4]))
                     eigenvalues.append(float(eigenvalues1.split()[3]))
-
+            
             alldatazip = zip(setloc,totalCPUtime,irrkpts,freeEnergy,ewaldEnergy,alphaz,energySigma0,eNoEntropy,eigenvalues)
-        
-        #for i in alldatazip:
-         #   print(i)
+            print(len(alldatazip))
 
-            plotdata(alldatazip, path)
+            #for i in alldatazip:
+            #    print(i)
+            #with open("1~/vasp/database/energy.txt","w") as f:
+            #    f.write(freeEnergy)
+            plotdata(alldatazip, path, name)
+            del alldatazip[:]
+            #for i in alldatazip:
         
     return
 
-def plotdata(alldatazip, path):
+def plotdata(alldatazip, path, name):
     error_alldata = []
     for i in range(0,len(alldatazip)-1):
         A = []
         A.append(alldatazip[i][0])
+             
         for j in range(1,len(alldatazip[-1])):
             a = abs(alldatazip[-1][j] - alldatazip[i][j])
             A.append(a)
         A[2] = alldatazip[i][2]
         error_alldata.append(A)
 
+#    print(error_alldata)
+   # for i in error_alldata:    
+    #    print(i)
+
+    for i in range(0,10):
+        print(error_alldata[i])
+    
     kpts = 4
     eTOTEN = []
     eTEWEN = []
@@ -464,16 +509,18 @@ def plotdata(alldatazip, path):
         for i in range(len(error_alldata)):
             if error_alldata[i][0][0] == kpts:
                 
-                a.append(alldatazip[i][3])
+                a.append(error_alldata[i][3])
                 b.append(error_alldata[i][4])
                 c.append(error_alldata[i][5])
                 d.append(error_alldata[i][6])
-                e_nENTRO.append(error_alldata[i][7])
+                e.append(error_alldata[i][7])
                 f.append(error_alldata[i][8])
                 irrk.append(error_alldata[i][2])
-                
-        kpts = 3 * h + 4
+
         
+            kpts = 3 * h + 4
+
+            
         eTOTEN.append(a)
         eTEWEN.append(b)
         ePSCENC.append(c)
@@ -481,35 +528,81 @@ def plotdata(alldatazip, path):
         e_nENTRO.append(e)
         eEBANDS.append(f)
         ikpts.append(irrk)
-        
+
+
+    #print(eTOTEN)
     del eTOTEN[0]
     del ikpts[0]
     del eSIGMA0[0]
-                                                                                             
+    del e_nENTRO[0]
+    del eEBANDS[0]
+    del ePSCENC[0]
+    del eTEWEN[0]
+
     #print(ikpts)     
 
     #errorset = [eTOTEN,eTEWEN,ePSCENC,eSIGMA0,e_nENTRO,eEBANDS]
 
     #print(ikpts)
 
+    graphpath = "/fslhome/" + netID + "/vasp/database/code/graphs/"
+
+
+    
     for i in range(len(ikpts)):
         plt.plot(ikpts[i],eTOTEN[i])
-    
     plt.xlabel("Irreducible k-points")
     plt.ylabel("Error")
-    plt.title("eTOTEN")
-    plt.savefig(path + '/eTOTEN.pdf')
-
-    #for i in range(len(ikpts)):
-#        plt.plot(e_nENTRO[i], ikpts[i])
-#
-#    plt.loglog()
-#    plt.xlabel("Irreducible k-points")
-#    plt.ylabel("Error")
-#    plt.title("Energy without Entropy")
-#    plt.savefig(path + '/eTEWEN.pdf')
-
+    plt.title(name + " TOTEN")
+ #   plt.loglog()
+    plt.savefig(graphpath + name + "_eTOTEN.pdf")
+    plt.close()
     
+    """for i in range(len(ikpts)):
+        print(eTEWEN[i])
+        plt.plot(ikpts[i], eTEWEN[i])
+    plt.loglog()
+    plt.xlabel("Irreducible k-points")
+    plt.ylabel("Error")
+    plt.title(name + " TEWEN")
+    plt.savefig(graphpath + name + '_eTEWEN.pdf')
+    plt.close()
+    """
+    for i in range(len(ikpts)):
+        plt.plot(ikpts[i], eEBANDS[i])
+#    plt.loglog()
+    plt.xlabel("Irreducible k-points")
+    plt.ylabel("Error")
+    plt.title(name + " EBANDS")
+    plt.savefig(graphpath + name + '_eEBANDS.pdf')
+    plt.close()
+    
+    for i in range(len(ikpts)):
+        plt.plot(ikpts[i], eSIGMA0[i])
+#    plt.loglog()
+    plt.xlabel("Irreducible k-points")
+    plt.ylabel("Error")
+    plt.title(name + " SIGMA -> 0")
+    plt.savefig(graphpath + name + '_eSIGMA.pdf')
+    plt.close()
+
+    """for i in range(len(ikpts)):
+        plt.plot(ikpts[i], ePSCENC[i])
+    plt.loglog()
+    plt.xlabel("Irreducible k-points")
+    plt.ylabel("Error")
+    plt.title(name + " PSCENC")
+    plt.savefig(graphpath + name + '_ePSCENC')
+    plt.close()"""
+    
+    for i in range(len(ikpts)):
+        plt.plot(ikpts[i], e_nENTRO[i])
+#    plt.loglog()
+    plt.xlabel("Irreducible k-points")
+    plt.ylabel("Error")
+    plt.title(name + " No Entropy")
+    plt.savefig(graphpath + name + '_e_nENTRO.pdf')
+    plt.close()
     return
 
 
