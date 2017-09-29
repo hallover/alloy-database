@@ -99,7 +99,7 @@ def buildDirs():
                 #Here we're going to make each of the input files by calling 
                 #the functions declared later in this package
 
-                getPOTCAR(lvl3path, index)
+                getPotcar(lvl3path, index)
 
                 with open(lvl3path + "/POSCAR" , "w") as f:
                     f.write(inputzips[index][1])
@@ -110,8 +110,8 @@ def buildDirs():
                 else:
                     first = False
 
-                makeINCAR(lvl3path, first, index)
-                makeKPOINTS(lvl3path, k)
+                makeIncar(lvl3path, first, index)
+                makeKPoints(lvl3path, k)
                 makeSlurm(lvl3path, n, k, metal)
 
         index += 1
@@ -154,7 +154,7 @@ def getFiles():
             
     return
 
-def getPOTCAR(path, index):
+def getPotcar(path, index):
 
 
     from element import Element
@@ -174,7 +174,7 @@ def getPOTCAR(path, index):
 
 
     return
-def makeKPOINTS(path, kpts):
+def makeKPoints(path, kpts):
     kptpath = path + "/KPOINTS"
     kpts = str(kpts) + " "
     zeros = str(0) + " " + str(0) + " " + str(0)
@@ -189,7 +189,7 @@ def makeKPOINTS(path, kpts):
     return
 
 
-def makeINCAR(path, first, index):
+def makeIncar(path, first, index):
     incarpath = path + "/INCAR"
 
     with open(incarpath, "w") as f:
@@ -314,7 +314,7 @@ def runFirstBatch():
                             os.system("cd " + lvl3path + "; sbatch RUN.sh")
 
 
-def cpCHGCAR():
+def cpChgcar():
 
 
     dirs = sorted([d for d in os.listdir(newpath) if os.path.isdir(os.path.join(newpath,d))])
@@ -374,7 +374,7 @@ def editIncar():
                     else:
                         first = False
 
-                    makeINCAR(lvl3path,first,metal)
+                    makeIncar(lvl3path, first, metal)
 
 
 def gatherData():
@@ -468,13 +468,13 @@ def gatherData():
             #    print(i)
             #with open("1~/vasp/database/energy.txt","w") as f:
             #    f.write(freeEnergy)
-            plotdata(alldatazip, path, name)
+            plotData(alldatazip, path, name)
             del alldatazip[:]
             #for i in alldatazip:
         
     return
 
-def plotdata(alldatazip, path, name):
+def plotData(alldatazip, path, name):
     error_alldata = []
     for i in range(0,len(alldatazip)-1):
         A = []
