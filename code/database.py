@@ -32,6 +32,14 @@ VASP - Density Functional Theory package
        energy levels for each run.
     IBZKPT = Gives us the number and location of each irreducible k-point
 
+
+
+FOR SETTING UP A NEW METAL
+     
+
+
+
+
 """
 
 
@@ -64,10 +72,10 @@ newpath = "/fslhome/" + netID + "/vasp/alloydatabase/metalsdir/"
 finishedpath = "/fslhome/" + netID + "/vasp/alloydatabase/finished/"
 databasepath = "/fslhome/" + netID + "/vasp/database/code/"
 
-def buildDIRS():
+def buildDirs():
     #Once we have the zip files all in the /alloyzips folder, we are going to run this function.
     #It builds the directory tree and creates all of the input files for VASP.
-    
+    getFiles()
     #Set up directory loop
     dirs = [d for d in os.listdir(newpath) if os.path.isdir(os.path.join(newpath, d))]
     index = 0
@@ -110,7 +118,7 @@ def buildDIRS():
     return
 
 
-def getFILES():
+def getFiles():
 
     zipnames = [f for f in os.listdir(zippath) if isfile(join(zippath,f))]
     
@@ -184,37 +192,38 @@ def makeKPOINTS(path, kpts):
 def makeINCAR(path, first, index):
     incarpath = path + "/INCAR"
 
-#    with open(incarpath, "w") as f:
-#        incarstr = inputzips[index][3]
-        
-#        incarstr = incarstr.replace("NELM = 100","NELM = 50")
-#        incarstr = incarstr.replace("NSW = 99", "NSW = 1")
-#        incarstr = incarstr.replace("ISIF = 3", "ISIF = 0")
-#        incarstr = incarstr.replace("ISPIN = 2", "ISPIN = 1")
-
-#        f.write("NBANDS = 100\n")
-#        f.write("LMAXMIX = 4\n")
     with open(incarpath, "w") as f:
-        f.write("IBRION = 2\n")
-        f.write("ISIF = 5\n")
-        f.write("ISMEAR = -1\n")
-        f.write("SIGMA = .001\n")
-        f.write("NSW = 100\n")
-        f.write("POTIM = 0.5\n")
-        f.write("ENCUT = 400\n")
-        f.write("PREC = Accurate\n")
+        incarstr = inputzips[index][3]
+        
+        incarstr = incarstr.replace("NELM = 100","NELM = 50")
+        incarstr = incarstr.replace("NSW = 99", "NSW = 1")
+        incarstr = incarstr.replace("ISIF = 3", "ISIF = 0")
+        incarstr = incarstr.replace("ISPIN = 2", "ISPIN = 1")
+
         f.write("NBANDS = 100\n")
-        f.write("EDIFF = .00000001\n")
-        f.write("LMAXMIX = 2\n")
+        f.write("LMAXMIX = 5\n")
+
+#    with open(incarpath, "w") as f:
+#        f.write("IBRION = 2\n")
+#        f.write("ISIF = 5\n")
+#        f.write("ISMEAR = -1\n")
+#        f.write("SIGMA = .001\n")
+#        f.write("NSW = 100\n")
+#        f.write("POTIM = 0.5\n")
+#        f.write("ENCUT = 400\n")
+#        f.write("PREC = Accurate\n")
+#        f.write("NBANDS = 100\n")
+#        f.write("EDIFF = .00000001\n")
+#        f.write("LMAXMIX = 2\n")
 
 
         if first == True:
-            #f.write(incarstr.replace("ICHARG = 1","ICHARG = 0"))
-            f.write("ICHARG = 1\n")
+            f.write(incarstr.replace("ICHARG = 1","ICHARG = 0"))
+            #f.write("ICHARG = 1\n")
             
         else:
-            #f.write(incarstr.replace("ICHARG = 1", "ICHARG = 11"))
-            f.write("ICHARG = 11\n")
+            f.write(incarstr.replace("ICHARG = 1", "ICHARG = 11"))
+            #f.write("ICHARG = 11\n")
 
     return
 
@@ -346,7 +355,7 @@ def editSlurm():
     return
 
 def editIncar():
-    getFILES()
+    getFiles()
     dirs = sorted ([d for d in os.listdir(newpath) if os.path.isdir(os.path.join(newpath, d))])
 
     for metal in range(len(dirs)):
@@ -554,7 +563,7 @@ def plotdata(alldatazip, path, name):
     plt.xlabel("Irreducible k-points")
     plt.ylabel("Error")
     plt.title(name + " TOTEN")
- #   plt.loglog()
+    plt.loglog()
     plt.savefig(graphpath + name + "_eTOTEN.pdf")
     plt.close()
     
@@ -570,7 +579,7 @@ def plotdata(alldatazip, path, name):
     """
     for i in range(len(ikpts)):
         plt.plot(ikpts[i], eEBANDS[i])
-#    plt.loglog()
+    plt.loglog()
     plt.xlabel("Irreducible k-points")
     plt.ylabel("Error")
     plt.title(name + " EBANDS")
@@ -579,7 +588,7 @@ def plotdata(alldatazip, path, name):
     
     for i in range(len(ikpts)):
         plt.plot(ikpts[i], eSIGMA0[i])
-#    plt.loglog()
+    plt.loglog()
     plt.xlabel("Irreducible k-points")
     plt.ylabel("Error")
     plt.title(name + " SIGMA -> 0")
@@ -597,7 +606,7 @@ def plotdata(alldatazip, path, name):
     
     for i in range(len(ikpts)):
         plt.plot(ikpts[i], e_nENTRO[i])
-#    plt.loglog()
+    plt.loglog()
     plt.xlabel("Irreducible k-points")
     plt.ylabel("Error")
     plt.title(name + " No Entropy")
