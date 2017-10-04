@@ -45,6 +45,7 @@ FOR SETTING UP A NEW METAL
 
 import os
 import zipfile as Z
+import unittest
 from os.path import isfile, join
 from getpass import getuser
 from matplotlib import pyplot as plt
@@ -192,39 +193,39 @@ def makeKPOINTS(path, kpts):
 def makeINCAR(path, first, index):
     incarpath = path + "/INCAR"
 
-    with open(incarpath, "w") as f:
-        incarstr = inputzips[index][3]
-        
-        incarstr = incarstr.replace("NELM = 100","NELM = 50")
-        incarstr = incarstr.replace("NSW = 99", "NSW = 1")
-        incarstr = incarstr.replace("ISIF = 3", "ISIF = 0")
-        incarstr = incarstr.replace("ISPIN = 2", "ISPIN = 1")
-
-        f.write("NBANDS = 100\n")
-        f.write("LMAXMIX = 5\n")
-
 #    with open(incarpath, "w") as f:
-#        f.write("IBRION = 2\n")
-#        f.write("ISIF = 5\n")
-#        f.write("ISMEAR = -1\n")
-#        f.write("SIGMA = .001\n")
-#        f.write("NSW = 100\n")
-#        f.write("POTIM = 0.5\n")
-#        f.write("ENCUT = 400\n")
-#        f.write("PREC = Accurate\n")
+#        incarstr = inputzips[index][3]
+#        
+#        incarstr = incarstr.replace("NELM = 100","NELM = 50")
+#        incarstr = incarstr.replace("NSW = 99", "NSW = 1")
+#        incarstr = incarstr.replace("ISIF = 3", "ISIF = 0")
+#        incarstr = incarstr.replace("ISPIN = 2", "ISPIN = 1")#
+
 #        f.write("NBANDS = 100\n")
-#        f.write("EDIFF = .00000001\n")
-#        f.write("LMAXMIX = 2\n")
+#        f.write("LMAXMIX = 5\n")
 
+    with open(incarpath, "w") as f:
+        f.write("IBRION = 2\n")
+        f.write("ISIF = 5\n")
+        f.write("ISMEAR = -1\n")
+        f.write("SIGMA = .001\n")
+        f.write("NSW = 100\n")
+        f.write("POTIM = 0.5\n")
+        f.write("ENCUT = 400\n")
+        f.write("PREC = Accurate\n")
+        f.write("NBANDS = 100\n")
+        f.write("EDIFF = .00000001\n")
+        f.write("LMAXMIX = 2\n")
 
+#        """
         if first == True:
-            f.write(incarstr.replace("ICHARG = 1","ICHARG = 0"))
-            #f.write("ICHARG = 1\n")
+            #f.write(incarstr.replace("ICHARG = 1","ICHARG = 0"))
+            f.write("ICHARG = 1\n")
             
         else:
-            f.write(incarstr.replace("ICHARG = 1", "ICHARG = 11"))
-            #f.write("ICHARG = 11\n")
-
+           # f.write(incarstr.replace("ICHARG = 1", "ICHARG = 11"))
+            f.write("ICHARG = 11\n")
+#        """
     return
 
 
@@ -235,28 +236,28 @@ def makeSlurm(path, frz, kpts, name):
         f.write("#SBATCH --partition=physics \n")
         
         if kpts == 4:
-            f.write("#SBATCH --time=00:10:00   # walltime\n")
+            f.write("#SBATCH --time=00:30:00   # walltime\n")
             f.write("#SBATCH --mem-per-cpu=1000M   # memory per CPU core\n")
         elif kpts == 7:
-            f.write("#SBATCH --time=00:20:00   # walltime\n")
-            f.write("#SBATCH --mem-per-cpu=2000M   # memory per CPU core\n")       
+            f.write("#SBATCH --time=01:00:00   # walltime\n")
+            f.write("#SBATCH --mem-per-cpu=1500M   # memory per CPU core\n")       
         elif kpts == 10 or kpts == 13:
-            f.write("#SBATCH --time=00:40:00   # walltime\n")
+            f.write("#SBATCH --time=01:40:00   # walltime\n")
             f.write("#SBATCH --mem-per-cpu=4000M   # memory per CPU core\n") 
         elif kpts == 16 or kpts == 19:
-            f.write("#SBATCH --time=01:30:00   # walltime\n")
+            f.write("#SBATCH --time=02:30:00   # walltime\n")
             f.write("#SBATCH --mem-per-cpu=6000M   # memory per CPU core\n")    
         elif kpts == 22 or kpts == 25:
-            f.write("#SBATCH --time=02:20:00   # walltime\n")
-            f.write("#SBATCH --mem-per-cpu=9000M # memory per CPU core\n")
+            f.write("#SBATCH --time=03:20:00   # walltime\n")
+            f.write("#SBATCH --mem-per-cpu=8000M # memory per CPU core\n")
         elif kpts == 28 or kpts == 31:
-            f.write("#SBATCH --time=03:30:00   # walltime\n")                        
+            f.write("#SBATCH --time=04:30:00   # walltime\n")                        
             f.write("#SBATCH --mem-per-cpu=10000M   # memory per CPU core\n")
         elif kpts == 34 or kpts == 37:
-            f.write("#SBATCH --time=04:30:00   # walltime\n")
-            f.write("#SBATCH --mem-per-cpu=12000M   # memory per CPU core\n") 
+            f.write("#SBATCH --time=05:30:00   # walltime\n")
+            f.write("#SBATCH --mem-per-cpu=14000M   # memory per CPU core\n") 
         elif kpts == 40 or kpts == 43:
-            f.write("#SBATCH --time=5:30:00 # walltime\n")
+            f.write("#SBATCH --time=6:30:00 # walltime\n")
             f.write("#SBATCH --mem-per-cpu=18000M # memory per CPU core\n")
 
             
@@ -485,14 +486,17 @@ def plotdata(alldatazip, path, name):
             A.append(a)
         A[2] = alldatazip[i][2]
         error_alldata.append(A)
-
+        print(A)
+#        print(alldatazip[i])
+        #plt.plot(alldatazip[i])
+        #plt.savefig("Absolute Answers", "absfigs" + str(i) + ".pdf")
 #    print(error_alldata)
    # for i in error_alldata:    
     #    print(i)
 
-    for i in range(0,10):
-        print(error_alldata[i])
-    
+    #for i in range(0,10):
+        #print(error_alldata[i])
+        #print("-------\n")
     kpts = 4
     eTOTEN = []
     eTEWEN = []
