@@ -1,8 +1,16 @@
+Al
+AlNi_pv
 CdCoN
+Co
+Cu_pv
+Fe_pv
+Ga_d
 Ga_dCo
+In_d
 Li_svFe_pvAs
 Li_svNi_pvO
 Mg_pvCo
+Ni_pv
 Ni_pvBi
 Pm_3Ni_pv
 Ta_pvNi_pvGe_d
