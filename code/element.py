@@ -14,7 +14,7 @@ class Element():
     def __init__(self, name):
 
         self.name = name
-        self.potdir = "/fslhome/glh43/src/potpaw_PBE/" + name + "/POTCAR"
+        self.potdir = "/fslhome/glh43/src/vasp/potpaw_PBE/" + name + "/POTCAR"
         
 
         with open(self.potdir, 'r') as f:

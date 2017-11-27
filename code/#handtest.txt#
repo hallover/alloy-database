@@ -1,0 +1,10 @@
+43x43 - etot: -14.98238728 eV
+
+      Alldatazip contains the proper values
+      		 4x43 - -14.98250712 eV diff = −0.00011984
+		 4x4 - -14.74755109 diff = 0.23483619
+		 37x37 -14.98244655 diff = −0.00005927
+
+      Check for error_alldatazip
+      	    error_alldatazip contains correct values
+	    		     

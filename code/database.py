@@ -183,10 +183,11 @@ def makeKPOINTS(path, kpts):
     with open(kptpath, "w") as f:
         f.write("KPOINTS FILES\n")
         f.write("0\n")
-        f.write("Monkhorst-Pack\n")
+        f.write("Gamma\n")
         kptstr = kpts + kpts + kpts
         f.write(kptstr + "\n")
-        f.write(zeros)
+        f.write("0.5 0.5 0.5")
+        #f.write(zeros)
     return
 
 
@@ -205,27 +206,32 @@ def makeINCAR(path, first, index):
 #        f.write("LMAXMIX = 5\n")
 
     with open(incarpath, "w") as f:
-        f.write("IBRION = 2\n")
-        f.write("ISIF = 5\n")
-        f.write("ISMEAR = -1\n")
-        f.write("SIGMA = .001\n")
-        f.write("NSW = 100\n")
-        f.write("POTIM = 0.5\n")
+        f.write("IBRION = 2\n") #Conjugate Gradient algorithm
+        f.write("ISIF = 3\n")  
+        f.write("ISMEAR = 0\n") #Gaussian Smear
+        f.write("SIGMA = .001\n") 
+        f.write("NSW = 100\n") #Max number of ionic steps
+       # f.write("POTIM = 0.5\n")
         f.write("ENCUT = 400\n")
         f.write("PREC = Accurate\n")
         f.write("NBANDS = 100\n")
         f.write("EDIFF = .00000001\n")
-        f.write("LMAXMIX = 2\n")
+        #f.write("LMAXMIX = 2\n")
 
 #        """
         if first == True:
             #f.write(incarstr.replace("ICHARG = 1","ICHARG = 0"))
-            f.write("ICHARG = 1\n")
+            f.write("ICHARG = 0\n")
+            f.write("LMAXMIX = 4\n")
+            f.write("ISTART = 0\n")
             
         else:
            # f.write(incarstr.replace("ICHARG = 1", "ICHARG = 11"))
             f.write("ICHARG = 11\n")
-#        """
+            f.write("LMAXMIX = 6\n")
+            f.write("ISTART = 1\n")
+            
+            
     return
 
 
@@ -310,7 +316,12 @@ def runFirstBatch():
                                     if "General timing and accounting informations" in line:
                                         redoJob = False
                                         print(n,k,"Complete")
-                                        os.system("for d in " + lvl2path + "/*/; do cp " + lvl2path + "/" + str(n).zfill(2) + "kpts/CHGCAR \"$d\"; done")                      
+                                        os.system("for d in " + lvl2path + "/*/; do cp " + lvl2path + "/" + str(n).zfill(2) + "kpts/CHGCAR \"$d\"; done")
+
+                                        #Copy CONTCAR over POSCAR alongwith CHGCAR
+                                        os.system("for d in " + lvl2path + "/*/; do cp " + lvl2path + "/" + str(n).zfill(2) + "kpts/CONTCAR \"$d/POSCAR\"; done")
+                                        
+                                        
                         if redoJob == True:
                             os.system("cd " + lvl3path + "; sbatch RUN.sh")
 
@@ -433,7 +444,7 @@ def gatherData():
                         if "Ewald energy   TEWEN  =" in line:
                             ewaldEnergy1 = line
                             
-                        if "Total CPU time used " in line:
+                        if "Total CPU time used (sec)" in line:
                             totalCPUtime1 = line
                             
                         if "irreducible k-points:" in line:
@@ -455,7 +466,9 @@ def gatherData():
                     eNoEntropy.append(float(eNoEntropy1.split()[4]))
                     atomicEnergy.append(float(atomicEnergy1.split()[4]))
                     ewaldEnergy.append(float(ewaldEnergy1.split()[4]))
+
                     totalCPUtime.append(float(totalCPUtime1.split()[5]))
+
                     irrkpts.append(int(irrkpts1.split()[1]))
                     setloc.append([n,k])
                     energySigma0.append(float(energySigma01.split()[7]))
@@ -465,6 +478,7 @@ def gatherData():
             alldatazip = zip(setloc,totalCPUtime,irrkpts,freeEnergy,ewaldEnergy,alphaz,energySigma0,eNoEntropy,eigenvalues)
             print(len(alldatazip))
 
+            #print(totalCPUtime)
             #for i in alldatazip:
             #    print(i)
             #with open("1~/vasp/database/energy.txt","w") as f:
@@ -486,7 +500,10 @@ def plotdata(alldatazip, path, name):
             A.append(a)
         A[2] = alldatazip[i][2]
         error_alldata.append(A)
-        print(A)
+        #print(A)
+
+        print(alldatazip[i][1])
+        
 #        print(alldatazip[i])
         #plt.plot(alldatazip[i])
         #plt.savefig("Absolute Answers", "absfigs" + str(i) + ".pdf")
@@ -496,6 +513,7 @@ def plotdata(alldatazip, path, name):
 
     #for i in range(0,10):
         #print(error_alldata[i])
+
         #print("-------\n")
     kpts = 4
     eTOTEN = []
@@ -505,7 +523,8 @@ def plotdata(alldatazip, path, name):
     e_nENTRO = []
     eEBANDS = []
     ikpts = []   
-
+    cputime = []
+    
     #Alldatazip order = kptorder,cputime,irrkpts,freeEnergy,tewen,pscenc,sigma0,nentro,ebands
     
     for h in range(0,14):
@@ -516,6 +535,7 @@ def plotdata(alldatazip, path, name):
         e = []
         f = []
         irrk = []
+        ctime = []
             
         #KPTORDER,CPUTIME,IRRKPTS,TOTEN,TEWEN,PSCENC,SIGMA0,nENTRO,EBANDS
         
@@ -529,11 +549,11 @@ def plotdata(alldatazip, path, name):
                 e.append(error_alldata[i][7])
                 f.append(error_alldata[i][8])
                 irrk.append(error_alldata[i][2])
-
+                ctime.append(alldatazip[i][1])
         
             kpts = 3 * h + 4
-
-            
+        
+        cputime.append(ctime)    
         eTOTEN.append(a)
         eTEWEN.append(b)
         ePSCENC.append(c)
@@ -544,6 +564,7 @@ def plotdata(alldatazip, path, name):
 
 
     #print(eTOTEN)
+    
     del eTOTEN[0]
     del ikpts[0]
     del eSIGMA0[0]
@@ -551,14 +572,56 @@ def plotdata(alldatazip, path, name):
     del eEBANDS[0]
     del ePSCENC[0]
     del eTEWEN[0]
+    
+    
+    del cputime[0]
 
+
+    sumcputime = []
+    for k in cputime:
+
+        h1 = []
+        for h in range(len(k)):
+            h1.append(k[0]+k[h])
+        sumcputime.append(h1)
+        
+
+    
+
+    print("TEST1")
+    print(len(cputime))
+
+    graphpath = "/fslhome/" + netID + "/vasp/database/code/graphs/"
+    
+    
+    abc = 0
+    
+    for i in range(len(ikpts)):
+        #print(cputime[i])
+        #print(eTOTEN[i])
+        
+        plt.plot(sumcputime[i],cputime[i])
+        plt.loglog()
+        plt.savefig(graphpath + str(abc)+"Aluminum.pdf")
+        plt.close()
+        
+        
+        for j in range(len(eTOTEN[i])):
+    #        plt.plot(eTOTEN[i][j],cputime[i][j])
+    #        plt.loglog()
+    #        plt.savefig(str(abc)+"Aluminum.pdf")
+    #        plt.close()
+            print(cputime[i][j])
+            print(eTOTEN[i][j])
+        abc = abc + 1
+    #print(cputime)
     #print(ikpts)     
 
     #errorset = [eTOTEN,eTEWEN,ePSCENC,eSIGMA0,e_nENTRO,eEBANDS]
 
     #print(ikpts)
 
-    graphpath = "/fslhome/" + netID + "/vasp/database/code/graphs/"
+    #graphpath = "/fslhome/" + netID + "/vasp/database/code/graphs/"
 
 
     

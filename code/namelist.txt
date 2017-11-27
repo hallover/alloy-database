@@ -1,3 +1,4 @@
+Ag
 Al
 AlNi_pv
 CdCoN
@@ -10,6 +11,8 @@ In_d
 Li_svFe_pvAs
 Li_svNi_pvO
 Mg_pvCo
+Mn_pvCo
+Mn_pvFe_pv
 Ni_pv
 Ni_pvBi
 Pm_3Ni_pv
@@ -17,5 +20,6 @@ Ta_pvNi_pvGe_d
 Ti_pvFe_pv
 Ti_pvNi_pv
 Y_svSiNi_pv
+Zn
 ZnFe_pvC
 ZnFe_pvF
