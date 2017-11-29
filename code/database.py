@@ -54,7 +54,7 @@ from matplotlib import pyplot as plt
 
 
 
-zipfiles = []
+vzipfiles = []
 pscrList = []
 incrList = []     
 kptList = []
@@ -207,15 +207,22 @@ def makeIncar(path, first, index):
 
     with open(incarpath, "w") as f:
         f.write("IBRION = 2\n") #Conjugate Gradient algorithm
-        f.write("ISIF = 3\n")  
+        f.write("ISIF = 3\n") #Relaxes Ions, shape, and volume  
         f.write("ISMEAR = 0\n") #Gaussian Smear
-        f.write("SIGMA = .001\n") 
+        f.write("SIGMA = .2\n") #Typical value for transition metals 
         f.write("NSW = 100\n") #Max number of ionic steps
-       # f.write("POTIM = 0.5\n")
-        f.write("ENCUT = 400\n")
+       # f.write("POTIM = 0.5\n") #Default value for IBRION:2 is .5
+        #f.write("ENCUT = 400\n") #Not strictly necessary from VASP 3.2++
         f.write("PREC = Accurate\n")
         f.write("NBANDS = 100\n")
-        f.write("EDIFF = .00000001\n")
+        f.write("EDIFF = .00001\n")
+
+        #FROM /alloydatabase/finished/CdCoN
+#c        f.write("LORBIT = 11")
+        f.write("LREAL = Auto")
+        #f.write("LWAVE = False")
+        
+        
         #f.write("LMAXMIX = 2\n")
 
 #        """
@@ -254,18 +261,17 @@ def makeSlurm(path, frz, kpts, name):
             f.write("#SBATCH --time=02:30:00   # walltime\n")
             f.write("#SBATCH --mem-per-cpu=6000M   # memory per CPU core\n")    
         elif kpts == 22 or kpts == 25:
-            f.write("#SBATCH --time=03:20:00   # walltime\n")
+            f.write("#SBATCH --time=04:00:00   # walltime\n")
             f.write("#SBATCH --mem-per-cpu=8000M # memory per CPU core\n")
         elif kpts == 28 or kpts == 31:
-            f.write("#SBATCH --time=04:30:00   # walltime\n")                        
+            f.write("#SBATCH --time=05:30:00   # walltime\n")                        
             f.write("#SBATCH --mem-per-cpu=10000M   # memory per CPU core\n")
         elif kpts == 34 or kpts == 37:
-            f.write("#SBATCH --time=05:30:00   # walltime\n")
+            f.write("#SBATCH --time=07:00:00   # walltime\n")
             f.write("#SBATCH --mem-per-cpu=14000M   # memory per CPU core\n") 
         elif kpts == 40 or kpts == 43:
-            f.write("#SBATCH --time=6:30:00 # walltime\n")
+            f.write("#SBATCH --time=9:00:00 # walltime\n")
             f.write("#SBATCH --mem-per-cpu=18000M # memory per CPU core\n")
-
             
 
         
@@ -408,8 +414,8 @@ def gatherData():
         alphaz = []
         eigenvalues = []
         
-        #path = "/fslhome/holiver2/work/vasp/alloydatabase/finished/0-CdCoN"
-        path = newpath + dirs[metal]
+        path = "/fslhome/holiver2/vasp/alloydatabase/finished/CdCoN"
+        #path = newpath + dirs[metal]
         print(dirs[metal])
         userinput = input("1 = yes, 0 = no")
         if userinput == 1:
@@ -476,18 +482,97 @@ def gatherData():
                     eigenvalues.append(float(eigenvalues1.split()[3]))
             
             alldatazip = zip(setloc,totalCPUtime,irrkpts,freeEnergy,ewaldEnergy,alphaz,energySigma0,eNoEntropy,eigenvalues)
-            print(len(alldatazip))
+         #   print(len(alldatazip))
 
             #print(totalCPUtime)
             #for i in alldatazip:
             #    print(i)
             #with open("1~/vasp/database/energy.txt","w") as f:
             #    f.write(freeEnergy)
-            plotData(alldatazip, path, name)
+
+
+            plotTopo(alldatazip,path,name)
+            #            plotData(alldatazip, path, name)
             del alldatazip[:]
             #for i in alldatazip:
         
     return
+
+def plotTopo(alldatazip, path, name):
+    import numpy as np
+    #print(alldatazip)
+    # [4,7,10,13,16,19,22,25,28,31,34,37,40,43]:len =14 
+    topoMatrix = np.zeros((14,14))
+
+    error_alldata = []
+    for i in range(0,len(alldatazip)-1):
+        A = []
+        A.append(alldatazip[i][0])
+        for j in range(1,len(alldatazip[-1])):
+            a = abs(alldatazip[-1][j] - alldatazip[i][j])
+            A.append(a)
+        A[2] = alldatazip[i][2]
+        error_alldata.append(A)
+
+    k = 0
+    for i in range(0,14):
+        for j in range(i,14):
+            #print([i,j])
+            #print(k)
+            #print(alldatazip[k][0]) # = [i,j]
+            alldatazip[k][0][0] = i
+            alldatazip[k][0][1] = j
+
+            k = k + 1
+    
+
+        #for i in error_alldata:
+        #print(i[0])
+    #for i in alldatazip:
+    #    print(i[0])
+
+
+    base = 1
+    bestStandardRun = 10000 #initialize large so that it can be adjusted down
+    for i in range(0,len(error_alldata)):
+        if error_alldata[i][0][0]==error_alldata[i][0][1] and error_alldata[i][3] < .001:
+            bestStandardRun = alldatazip[i][1]
+            break # this should end the loop as soon as it finds the standard run to meet the requirements
+    basetime = 0
+    i1 = 0
+    j = 0
+
+    print(bestStandardRun)
+    for i in range(0,len(alldatazip)):
+
+                
+        ii = alldatazip[i][0][0]
+        jj = alldatazip[i][0][1]
+        
+        #print(ii,jj)
+        if ii == jj:
+            basetime = alldatazip[i][1]
+            
+        runtime = alldatazip[i][1]
+            
+        totalruntime = basetime + runtime
+
+        speedFactor = bestStandardRun / totalruntime
+        #print(speedFactor)
+        
+
+        topoMatrix[ii][jj] = speedFactor
+        
+        
+
+        
+    print("checkpoint 1")
+    for tm in topoMatrix:
+        print(tm)
+    
+    return
+
+
 
 def plotData(alldatazip, path, name):
     error_alldata = []
@@ -617,13 +702,13 @@ def plotData(alldatazip, path, name):
     #print(cputime)
     #print(ikpts)     
 
-    #errorset = [eTOTEN,eTEWEN,ePSCENC,eSIGMA0,e_nENTRO,eEBANDS]
+    #Errorset = [eTOTEN,eTEWEN,ePSCENC,eSIGMA0,e_nENTRO,eEBANDS]
 
     #print(ikpts)
 
     #graphpath = "/fslhome/" + netID + "/vasp/database/code/graphs/"
 
-
+#    for i in range
     
     for i in range(len(ikpts)):
         plt.plot(ikpts[i],eTOTEN[i])
@@ -682,6 +767,7 @@ def plotData(alldatazip, path, name):
     return
 
 
+
 def runSecondBatch():
 
     dirs = sorted([d for d in os.listdir(newpath) if os.path.isdir(os.path.join(newpath, d))])
@@ -701,7 +787,7 @@ def runSecondBatch():
                     
                     lvl3path = lvl2path + "/" + str(k).zfill(2) + "kpts"    
 
-                    #if os.path.isfile(lvl3path + "/CHGCAR"):
+                    #If  .path.isfile(lvl3path + "/CHGCAR"):
                     if n != k:
                         redoJob = True 
                         if os.path.isfile(lvl3path + "/OUTCAR"):
